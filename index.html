@@ -1,24 +1,24 @@
-```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>iwasemi｜音問題 診断サービス（フォーム連携＋事例連動・最新版）</title>
+  <title>iwasemi｜音問題 診断サービス（フォーム連携 & 事例連携版）</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root{ color-scheme: light dark; }
     .badge{ display:inline-block; padding:.125rem .5rem; border-radius:.5rem; font-size:.75rem; border:1px solid rgba(16,185,129,.35);}
-    .toast{ position:fixed; right:1rem; bottom:1rem; background:#0f172a; color:#fff; padding:.75rem 1rem; border-radius:.75rem; opacity:.96; z-index:60;}
+    .toast{ position:fixed; right:1rem; bottom:1rem; background:#0f172a; color:#fff; padding:.75rem 1rem; border-radius:.75rem; opacity:.96; z-index:100;}
     .toast.ok{ background:#065f46; } .toast.ng{ background:#7f1d1d; }
-
     /* === Fullscreen Tips Overlay === */
-    .tips-overlay{position:fixed;inset:0;z-index:80;display:none;background:rgba(15,23,42,.96);color:#fff}
-    .tips-body{max-width:44rem;margin:7vh auto;padding:1.25rem}
+    .tips-overlay{position:fixed;inset:0;z-index:90;display:none;background:rgba(15,23,42,.96);color:#fff}
+    .tips-body{max-width:42rem;margin:8vh auto;padding:1.5rem}
     .tips-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:1rem;padding:1rem}
     .tips-actions{display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem}
     .tips-btn{background:#10b981;color:#0b1b26;border-radius:.75rem;padding:.5rem .9rem}
     .tips-btn.gray{background:#e2e8f0;color:#0b1b26}
+    /* case card */
+    .case-img{width:100%;height:160px;object-fit:cover;border-radius:.75rem;background:#0b1220}
   </style>
 </head>
 <body class="bg-slate-50 text-slate-900 selection:bg-emerald-200/60 dark:bg-slate-900 dark:text-slate-50">
@@ -390,11 +390,14 @@
       <!-- 0) 提案サマリー -->
       <div id="proposalSummary" class="mt-4"></div>
 
+      <!-- 0.5) グローバルCTA -->
+      <div id="globalCtas" class="mt-3 hidden"></div>
+
       <!-- 1) エビデンス -->
       <div id="evidenceWrap" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4"></div>
 
       <!-- 1.5) 近い導入事例 -->
-      <div id="casesWrap" class="mt-6"></div>
+      <div id="caseWrap" class="mt-6"></div>
 
       <!-- 2) 詳細レコメンド（最大3枚） -->
       <div id="recommendWrap" class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4"></div>
@@ -411,7 +414,9 @@
     </footer>
   </div>
 
-  <!-- Fullscreen Tips -->
+  <div id="toast" class="hidden"></div>
+
+  <!-- Tips Overlay -->
   <div id="tipsOverlay" class="tips-overlay" role="dialog" aria-modal="true" aria-label="注意事項">
     <div class="tips-body">
       <div class="tips-card">
@@ -422,13 +427,11 @@
         </p>
         <ul class="list-disc pl-5 mt-2 text-sm opacity-90">
           <li>欄間：上部インフィル（遮音ボード＋シーリング）</li>
-          <li>共有天井：プレナム内が連続している場合はバリア設置</li>
-          <li>ガラリ：ライニング（吸音材）付きダクトやサウンドトラップ</li>
+          <li>共有天井：プレナム内が連続ならバリア設置</li>
+          <li>ガラリ：ライニング（吸音）付きダクト／サウンドトラップ</li>
           <li>扉・枠：ガスケット、ドアボトムシールで隙間低減</li>
         </ul>
-        <p class="text-xs mt-2 opacity-80">
-          ※ まず経路対策、その後に室内吸音で仕上げると早期に体感改善が見込めます。
-        </p>
+        <p class="text-xs mt-2 opacity-80">※ まず経路対策、その後に室内吸音で仕上げるのが定石です。</p>
         <div class="tips-actions">
           <button class="tips-btn gray" onclick="hideTips()">閉じる</button>
           <button class="tips-btn" onclick="hideTips()">了解</button>
@@ -437,8 +440,6 @@
     </div>
   </div>
 
-  <div id="toast" class="hidden"></div>
-
   <script>
     const $ = (sel, el=document) => el.querySelector(sel);
     const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
@@ -446,15 +447,11 @@
     // THEME
     const themeBtn = $('#themeToggle');
     function setTheme(mode){
-      if(mode==='dark'){ document.documentElement.classList.add('dark'); localStorage.setItem('theme','dark'); themeBtn.textContent='Light'; }
-      else { document.documentElement.classList.remove('dark'); localStorage.setItem('theme','light'); themeBtn.textContent='Dark'; }
+      if(mode==='dark'){ document.documentElement.classList.add('dark'); localStorage.setItem('theme','dark'); themeBtn.textContent='ライト'; }
+      else { document.documentElement.classList.remove('dark'); localStorage.setItem('theme','light'); themeBtn.textContent='ダーク'; }
     }
-    themeBtn.addEventListener('click',()=> setTheme(document.documentElement.classList.contains('dark') ? 'light':'dark'));
+    themeBtn.addEventListener('click',()=> setTheme(document.documentElement.classList.contains('dark')?'light':'dark'));
     setTheme(localStorage.getItem('theme')|| (window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
-
-    // TIPS overlay
-    function showTips(){ const el = $('#tipsOverlay'); if (el) el.style.display = 'block'; }
-    function hideTips(){ const el = $('#tipsOverlay'); if (el) el.style.display = 'none'; }
 
     // TOAST
     function toast(msg, ok=true){
@@ -482,6 +479,8 @@
     function yen(n){ return '¥' + (Math.round(n)||0).toLocaleString('ja-JP'); }
     function fmt2(n){ return (Math.round(n*100)/100).toFixed(2); }
     function enc(s){ return encodeURIComponent(s||''); }
+    function showTips(){ const el = $('#tipsOverlay'); if (el) el.style.display = 'block'; }
+    function hideTips(){ const el = $('#tipsOverlay'); if (el) el.style.display = 'none'; }
 
     // COLLECT
     function collect(){
@@ -529,7 +528,6 @@
     }
 
     // ===== Material absorption (500/1000Hz) =====
-    // 係数（天井の過大評価を抑制）。値は簡易モデル用。
     const alpha = {
       // 壁
       gypsum:{a500:0.06, a1000:0.06},
@@ -546,7 +544,7 @@
       pvc:{a500:0.02, a1000:0.02},
       tile_stone:{a500:0.02, a1000:0.02},
       floor_unknown:{a500:0.10, a1000:0.08},
-      // 天井（実効60%＋45%上限キャップで扱う）
+      // 天井（実効寄与抑制）
       pb:{a500:0.10, a1000:0.08},
       mineral_grid:{a500:0.45, a1000:0.55},
       metal:{a500:0.10, a1000:0.10},
@@ -583,7 +581,7 @@
       return t;
     }
 
-    // Sabine: T = 0.161 * V / Aeq（天井寄与：実効60%・45%cap）
+    // Sabine: T = 0.161 * V / Aeq（天井寄与抑制＆キャップ）
     function calcRT(d){
       const A = Math.max(0.1, d.area);
       const H = heightFromKey(d.ceilHeight);
@@ -596,51 +594,51 @@
       const aw = d.walls.map(w=> getAlphaWall(w));
       const af = getAlphaFloor(d.floor);
       const ac = getAlphaCeil(d.ceiling);
-      const CEIL_EFF = 0.60;
-      const CAP = 0.45;
 
       const walls500  = aw[0].a500*wallAreas[0] + aw[1].a500*wallAreas[1] + aw[2].a500*wallAreas[2] + aw[3].a500*wallAreas[3];
-      const walls1000 = aw[0].a1000*wallAreas[0]+ aw[1].a1000*wallAreas[1]+ aw[2].a1000*wallAreas[2]+ aw[3].a1000*wallAreas[3];
+      const walls1000 = aw[0].a1000*wallAreas[0] + aw[1].a1000*wallAreas[1] + aw[2].a1000*wallAreas[2] + aw[3].a1000*wallAreas[3];
       const floor500  = af.a500 * floorArea;
-      const floor1000 = af.a1000* floorArea;
+      const floor1000 = af.a1000 * floorArea;
 
+      const CEIL_EFF = 0.60;
       const Aceil500  = ac.a500  * ceilArea * CEIL_EFF;
       const Aceil1000 = ac.a1000 * ceilArea * CEIL_EFF;
 
       const Aflat500  = walls500  + floor500;
       const Aflat1000 = walls1000 + floor1000;
 
-      const Aeq500   = Math.min(Aflat500 /(1-CAP),  Aflat500  + Aceil500 );
-      const Aeq1000  = Math.min(Aflat1000/(1-CAP),  Aflat1000 + Aceil1000);
+      const cap = 0.45; // 天井寄与45%まで
+      const Aeq500  = Math.min(Aflat500 /(1-cap), Aflat500  + Aceil500 );
+      const Aeq1000 = Math.min(Aflat1000/(1-cap), Aflat1000 + Aceil1000);
 
       const T500 = 0.161 * V / Math.max(0.001, Aeq500);
-      const T1000= 0.161 * V / Math.max(0.001, Aeq1000);
+      const T1000 = 0.161 * V / Math.max(0.001, Aeq1000);
       return { V, A, H, s, wallAreas, floorArea, ceilArea, Aeq500, Aeq1000, T500, T1000 };
     }
 
     // ====== SCORING ======
-    // 吸音必要度（S_abs）：対数スケール。1.0s/0.6s≈1.67 → ~80点
     function scoreAbs(d, rt){
-      if (d.spaceType === 'booth_tel') return null; // 特例：参考扱い
+      if (d.spaceType === 'booth_tel') return null;
       const Ttgt = rtTarget(d.spaceType, d.uses);
       const Tavg = (rt.T500 + rt.T1000)/2;
       const r = Math.max(1, Tavg / Ttgt);
-      const RCAP = 1.9; // ほぼ2倍で100に飽和
-      let s = Math.round(100 * Math.min(1, Math.log(r)/Math.log(RCAP)));
+      const RCAP = 1.9; // ~2倍手前で100
+      const sBase = Math.min(1, Math.log(r) / Math.log(RCAP));
+      let s = Math.round(100 * sBase);
       const U = new Set(d.uses);
       if (U.has('meeting_web') || U.has('meeting_hybrid') || U.has('websolo')) s += 3;
       s = Math.max(0, Math.min(100, s));
       return s;
     }
 
-    // 遮音必要度（S_isl）補助
     function isolationIndicators(d){
       const indicators = {
         extInvasion: d.sources.includes('invasion_ext') ? 1 : 0,
         transom: d.features.includes('transom') ? 1 : 0,
         plenum: d.features.includes('shared_plenum') ? 1 : 0,
         grille: d.features.includes('grille') ? 1 : 0,
-        gaps: ['gap_door_bottom','gap_frame','gap_penetration','gap_duct'].some(k=>d.features.includes(k)) ? 1 : 0
+        gaps: ['gap_door_bottom','gap_frame','gap_penetration','gap_duct']
+                .some(k=>d.features.includes(k)) ? 1 : 0
       };
       const any = Object.values(indicators).some(v=>v===1);
       return {indicators, any};
@@ -650,9 +648,8 @@
       return { glassCount: cnt(['glass_s','glass_d']), rcCount: cnt(['rc']) };
     }
 
-    // 遮音必要度（S_isl）
     function scoreIsl(d, rt){
-      if (d.spaceType === 'booth_tel') return null; // 特例：参考扱い
+      if (d.spaceType === 'booth_tel') return null;
       let s = 0;
       const {indicators, any} = isolationIndicators(d);
       const ws = wallStatsForIsl(d.walls);
@@ -668,11 +665,11 @@
       if (d.doorSeal === 'gasket') s -= 5;
       if (d.glazing === 'single') s += 8;
       if (d.glazing === 'double') s -= 6;
-      if (ws.glassCount >= 2) s += 8; else if (ws.glassCount === 1) s += 5;
+      if (ws.glassCount >= 2) s += 8;
+      else if (ws.glassCount === 1) s += 5;
       if (ws.rcCount >= 2) s -= 8;
       const privacyUse = ['exec','external'];
       if (privacyUse.some(u=>d.uses.includes(u))) s += any ? 6 : 3;
-
       if (!any) s = Math.min(s, 35);
       const Ttgt = rtTarget(d.spaceType, d.uses);
       const Tavg = (rt.T500 + rt.T1000) / 2;
@@ -682,13 +679,12 @@
       return Math.max(0, Math.round(s));
     }
 
-    // ===== iwasemi 必要枚数（表基準・1室あたりアンカー→線形補間） =====
-    // 代表アンカー：20㎡→190枚 を必ず通る
+    // ===== iwasemi 必要枚数（表基準アンカー→線形補間） =====
     const PANEL_ANCHORS = [
       {a:  5, p:  50},
       {a: 10, p: 100},
       {a: 15, p: 150},
-      {a: 20, p: 190}, // ←重要
+      {a: 20, p: 190}, // 重要：ご指定の通り
       {a: 25, p: 230},
       {a: 30, p: 270},
       {a: 40, p: 350},
@@ -709,7 +705,7 @@
       }
       const last = PANEL_ANCHORS[PANEL_ANCHORS.length-1];
       const prev = PANEL_ANCHORS[PANEL_ANCHORS.length-2];
-      const slope = (last.p - prev.p) / (last.a - prev.a); // 6.5枚/㎡（80→100区間）
+      const slope = (last.p - prev.p) / (last.a - prev.a);
       const extra = (area - last.a) * slope;
       return Math.round(last.p + extra);
     }
@@ -754,92 +750,30 @@
       };
     }
 
-    // ===== 事例データ（最小） =====
-    // 画像は WordPress mShots サムネイルを使用（CORS対策に referrerpolicy）
-    const CASES = [
-      {id:'knox',    title:'KNOX デモルーム', url:'https://iwasemi.com/posts/acoustic-solution-knox-demo-room', tags:['meeting','abs']},
-      {id:'onosokki',title:'小野測器（会議室）', url:'https://iwasemi.com/posts/onosokki-acousticpanel', tags:['meeting','abs']},
-      {id:'maruni',  title:'マルニ木工', url:'https://iwasemi.com/posts/maruni-acousticpanel', tags:['meeting','abs']},
-      {id:'aston',   title:'ASTON（スタジオ）', url:'https://iwasemi.com/posts/aston-iwasemi', tags:['studio','abs']},
-      {id:'tokyo',   title:'東京建物', url:'https://iwasemi.com/posts/tokyo-building-acoustic-solution', tags:['open','abs']},
-      {id:'yanmar',  title:'ヤンマーHD', url:'https://iwasemi.com/posts/yanmar-acousticpanel', tags:['open','abs']},
-      {id:'panasonic',title:'パナソニック', url:'https://iwasemi.com/posts/panasonic-iwasemi', tags:['meeting','abs']},
-      {id:'toyota',  title:'トヨタコネクティッド', url:'https://iwasemi.com/posts/toyota-connected-acoustic-solution', tags:['open','abs']},
-      {id:'mext',    title:'文部科学省', url:'https://iwasemi.com/posts/mext-iwasemi-case-study', tags:['meeting','iso']},
-      {id:'nwlife',  title:'日本ワムネット/生命', url:'https://iwasemi.com/posts/nw-life-iwasemi', tags:['open','abs']},
-      {id:'mlit',    title:'国交省（MLIT）', url:'https://iwasemi.com/posts/MLIT-iwasemi', tags:['iso']},
-      {id:'hokkoku', title:'北國銀行', url:'https://iwasemi.com/posts/HokkokuBank', tags:['iso','meeting']},
-      {id:'toyotaej',title:'トヨタEJ', url:'https://iwasemi.com/posts/toyota-ej-iwasemi', tags:['iso','open']},
-      {id:'coincheck',title:'コインチェック', url:'https://iwasemi.com/posts/coincheck-iwasemi', tags:['open','abs']},
-      {id:'q0f',     title:'某オフィス', url:'https://iwasemi.com/posts/q0fCIy0N', tags:['open','abs']},
-      {id:'cWx',     title:'某事例', url:'https://iwasemi.com/posts/cWx2W1kL', tags:['meeting','abs']}
-    ];
-    function caseThumb(url){ return `https://s.wordpress.com/mshots/v1/${encodeURIComponent(url)}?w=640`; }
-    function pickCases(d, S, primaryKey){
-      // ルール：遮音優位→isoタグ、会議室→meeting、オープン→open、スタジオ→studio
-      const list = [];
-      const wantIso = primaryKey==='isolation' || (S.S_isl!=null && S.S_isl>=50);
-      const wantMeeting = d.spaceType.startsWith('meeting');
-      const wantOpen = d.spaceType==='open' || d.spaceType==='callcenter' || d.spaceType==='reception';
-      const wantStudio = d.spaceType==='studio';
-      if (wantIso) list.push(...CASES.filter(c=>c.tags.includes('iso')));
-      if (wantMeeting) list.push(...CASES.filter(c=>c.tags.includes('meeting')));
-      if (wantOpen) list.push(...CASES.filter(c=>c.tags.includes('open')));
-      if (wantStudio) list.push(...CASES.filter(c=>c.tags.includes('studio')));
-      if (!wantIso && !wantMeeting && !wantOpen && !wantStudio) list.push(...CASES.filter(c=>c.tags.includes('abs')));
-      // 重複排除・上位3件
-      const uniq = []; const seen = new Set();
-      for (const c of list){ if(!seen.has(c.id)){ uniq.push(c); seen.add(c.id); } }
-      return uniq.slice(0,3);
-    }
-    function renderCases(d, S, primaryKey){
-      const items = pickCases(d, S, primaryKey);
-      if (!items.length){ $('#casesWrap').innerHTML = ''; return; }
-      $('#casesWrap').innerHTML = `
-        <div class="p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
-          <div class="text-lg font-semibold mb-2">近い導入事例</div>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            ${items.map(c => `
-              <a class="block group" href="${c.url}" target="_blank" rel="noopener">
-                <div class="aspect-video rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-700 border border-slate-200/60 dark:border-slate-600/60">
-                  <img src="${caseThumb(c.url)}" referrerpolicy="no-referrer" alt="${c.title}" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300" />
-                </div>
-                <div class="mt-2 text-sm">${c.title}</div>
-              </a>
-            `).join('')}
-          </div>
-        </div>`;
-    }
-
     // ===== 推奨カテゴリ =====
     function recommend(d, S, rt){
       const list = [];
       const ratio = ((rt.T500 + rt.T1000)/2) / rtTarget(d.spaceType, d.uses);
       const {any} = isolationIndicators(d);
 
-      if (S.S_abs === null || S.S_isl === null){
-        // TELECUBEなどの特例は別関数
-        return recommendForBoothTel(d);
+      if (S.S_abs !== null && S.S_isl !== null) {
+        if (S.S_abs < 12 && S.S_isl < 40){
+          list.push({ key:'measure', label:'計測/トライアル', priority:'高', score:50,
+            reason:'音環境の改善余地は小さめです。導入前に残響測定または体感トライアルで必要量を確認します。',
+            cta:{label:'PxDTに相談',kind:'pxdt'} });
+          return list;
+        }
       }
 
-      // まず「計測/トライアル」ゲート
-      if (S.S_abs < 12 && S.S_isl < 40){
-        list.push({ key:'measure', label:'計測/トライアル', priority:'高', score:50,
-          reason:'音環境の改善余地は小さめです。導入前に残響測定または体感トライアルで必要量を確認します。',
-          cta:{label:'PxDTに相談',kind:'pxdt'} });
-        return list;
-      }
-
-      // 高優先カテゴリ
-      if (S.S_isl >= 60 || (d.zeroLeak && any)){
+      if (S.S_isl !== null && (S.S_isl >= 60 || (d.zeroLeak && any))){
         list.push({ key:'isolation', label:'遮音', priority:'高', score:S.S_isl,
           reason:'欄間/共有天井/ガラリ/隙間や外部侵入の要素が強く、遮音工事（上部インフィル・扉更新等）が主目的です。',
           cta:{label:'遮音工事の社内見積を依頼',kind:'okamura'} });
-      } else if (S.S_isl >= 45){
-        list.push({ key:'abs_plus_seal', label:'吸音＋隙詰め', priority:'高', score:S.S_isl + Math.min(12, 0.25*S.S_abs),
+      } else if (S.S_isl !== null && S.S_isl >= 45){
+        list.push({ key:'abs_plus_seal', label:'吸音＋隙詰め', priority:'高', score:S.S_isl + (S.S_abs?Math.min(12, 0.25*S.S_abs):0),
           reason:'回り込みの懸念があるため、隙詰めを併用しつつ吸音で室内音圧と残響を低減します。',
           cta:{label:'隙詰め同時で相談（PxDT）',kind:'pxdt'} });
-      } else if (ratio >= 1.3 && S.S_abs >= 12){
+      } else if (S.S_abs !== null && ratio >= 1.3 && S.S_abs >= 12){
         list.push({ key:'absorption', label:'吸音', priority:'高', score:S.S_abs + (d.uses.includes('stream')?5:0),
           reason:'残響が目標値を上回っており、可聴性・明瞭度の改善には吸音量の増強が有効です。',
           cta:{label:'トライアルを申し込む',kind:'trial'} });
@@ -849,14 +783,13 @@
           cta:{label:'PxDTに相談',kind:'pxdt'} });
       }
 
-      // 中・低（補完）
       const hasAbs = list.some(x=>x.key==='absorption' || x.key==='abs_plus_seal');
-      if (!hasAbs && S.S_abs >= 12){
+      if (!hasAbs && S.S_abs !== null && S.S_abs >= 12){
         list.push({ key:'absorption', label:'吸音', priority:'中', score:Math.max(30,S.S_abs),
           reason:'室内整音の基礎として吸音を段階導入します。',
           cta:{label:'トライアルを申し込む',kind:'trial'} });
       }
-      if (!list.some(x=>x.key==='isolation') && S.S_isl>=40){
+      if (!list.some(x=>x.key==='isolation') && S.S_isl !== null && S.S_isl>=40){
         list.push({ key:'abs_plus_seal', label:'吸音＋隙詰め', priority:'低', score:S.S_isl,
           reason:'軽微な回り込み対策を同時に行うと改善が早期化します。',
           cta:{label:'隙詰め同時で相談（PxDT）',kind:'pxdt'} });
@@ -865,56 +798,119 @@
       return list.slice(0,3);
     }
 
-    // TELECUBE用の定型レコメンド
-    function recommendForBoothTel(d){
-      return [
-        { key:'absorption', label:'吸音（ブース内面）', priority:'高', score:50,
-          reason:'ブースは容積が小さく反射面の比率が高いため、話し声のこもり・高域反射が生じやすいです。ガラス面や正対壁へ薄型パネルを推奨します。',
-          cta:{label:'トライアルを申し込む',kind:'trial'} },
-        { key:'abs_plus_seal', label:'隙詰め（ブースの気密ケア）', priority:'中', score:40,
-          reason:'ドア下・枠まわり・貫通部の簡易封止により外部への漏れ・外部からの侵入を低減します。',
-          cta:{label:'隙詰め同時で相談（PxDT）',kind:'pxdt'} }
-      ];
+    // ===== 導入事例（画像URL直指定 & 自動推薦）=====
+    const CASES = [
+      {id:'knox',        title:'KNOXデモルーム',                                url:'https://iwasemi.com/posts/acoustic-solution-knox-demo-room', img:'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1588_v-frms_webp_3cbe404c-75d6-4e03-a62a-ccb5d4e1bf2a.jpg', tags:['meeting','absorption']},
+      {id:'onosokki',    title:'小野測器（会議室）',                            url:'https://iwasemi.com/posts/onosokki-acousticpanel',           img:'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2388x1321_v-frms_webp_c232231e-3823-470b-9090-e72e25eb6e1c.png', tags:['meeting','absorption']},
+      {id:'maruni',      title:'マルニコーポレーション',                        url:'https://iwasemi.com/posts/maruni-acousticpanel',             img:'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-934x649_v-fs_webp_95193a5e-061a-4636-8c33-235b921e0e61.jpg', tags:['meeting','absorption']},
+      {id:'aston',       title:'アストン',                                       url:'https://iwasemi.com/posts/aston-iwasemi',                     img:'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1600_v-frms_webp_9ebd7a93-0b96-4f2e-a7af-45ebeb6a0738.jpg', tags:['meeting','absorption']},
+      {id:'tokyo-bldg',  title:'東京建物（オープン）',                           url:'https://iwasemi.com/posts/tokyo-building-acoustic-solution',  img:'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1601_v-frms_webp_89d08d5f-9ad3-42aa-a86f-d5eda6b37341.jpg', tags:['open','absorption']},
+      {id:'yanmar',      title:'ヤンマーHD',                                     url:'https://iwasemi.com/posts/yanmar-acousticpanel',              img:'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1601_v-frms_webp_27fb2553-22a6-4a7f-be6e-d28fe418a633.jpg', tags:['meeting','absorption']},
+      {id:'panasonic',   title:'パナソニックE&C',                                url:'https://iwasemi.com/posts/panasonic-iwasemi',                 img:'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1600_v-frms_webp_00ebe96d-5f99-4eb6-b787-25acb33066b0.jpg', tags:['open','absorption']},
+      {id:'toyota-conn', title:'トヨタコネクテッド',                              url:'https://iwasemi.com/posts/toyota-connected-acoustic-solution',img:'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1600_v-frms_webp_e0ce5f6f-f1d2-4ae4-ada9-bae2514f1fab.jpg', tags:['meeting','open','absorption']},
+      {id:'mext',        title:'文部科学省',                                      url:'https://iwasemi.com/posts/mext-iwasemi-case-study',           img:'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1601_v-frms_webp_9fdc4207-ca78-475d-890e-5ca0e4d34d08.jpg', tags:['meeting','absorption']},
+      {id:'nw-life',     title:'ニッセイ・ウェルス生命',                         url:'https://iwasemi.com/posts/nw-life-iwasemi',                   img:'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1601_v-frms_webp_f34ed0a6-e0aa-468b-80bf-c327b8764cdf.jpg', tags:['open','absorption']},
+      {id:'mlit',        title:'国土交通省（遮音強化事例）',                      url:'https://iwasemi.com/posts/MLIT-iwasemi',                      img:'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-5464x8192_v-frms_webp_6b248fdc-adb9-4ff7-8bff-0dc90638c33f.jpg', tags:['isolation','meeting']},
+      {id:'hokkoku',     title:'北国銀行',                                        url:'https://iwasemi.com/posts/HokkokuBank',                       img:'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1601_v-frms_webp_595a7dc4-088c-4a60-b2f8-2ca3cdaadf83.jpg', tags:['meeting','absorption']},
+      {id:'toyota-ej',   title:'トヨタ自動車東日本',                              url:'https://iwasemi.com/posts/toyota-ej-iwasemi',                 img:'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-6000x3376_v-frms_webp_a5df4af2-716a-4899-baf4-2584b996f190.jpg', tags:['meeting','absorption']},
+      {id:'comado',      title:'Maison Comado（スタジオ）',                       url:'https://iwasemi.com/posts/cWx2W1kL',                           img:'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-4032x3024_v-frms_webp_78f5fa8f-2eba-49a6-8074-41ffab353fa2.jpg', tags:['studio','absorption']},
+      {id:'coincheck',   title:'コインチェック（オープン）',                      url:'https://iwasemi.com/posts/coincheck-iwasemi',                 img:'https://storage.googleapis.com/studio-design-asset-files/projects/JpOLNkebaQ/s-2400x621_v-frms_webp_7d402690-6c30-46e1-96ce-ae19f2480ef5_small.webp', tags:['open','absorption']}
+    ];
+    function pickCases(d, S, primaryKey){
+      const want = new Set();
+      if (primaryKey==='isolation' || ['transom','shared_plenum','grille'].some(f=>d.features.includes(f))) want.add('isolation');
+      if (d.spaceType==='open' || d.spaceType==='callcenter') want.add('open');
+      if (d.spaceType==='studio') want.add('studio');
+      if (d.spaceType.startsWith('meeting')) want.add('meeting');
+      if (S.S_abs===null || S.S_abs>=12) want.add('absorption');
+      // スコア高→isolation優先
+      const ranked = CASES.slice().sort((a,b)=>{
+        const scoreTag = t=>{
+          let s=0;
+          if (want.has('isolation') && a.tags.includes('isolation')) s+=3;
+          if (want.has('meeting') && a.tags.includes('meeting')) s+=2;
+          if (want.has('open') && a.tags.includes('open')) s+=2;
+          if (want.has('studio') && a.tags.includes('studio')) s+=2;
+          if (want.has('absorption') && a.tags.includes('absorption')) s+=1;
+          return s;
+        };
+        return scoreTag(b)-scoreTag(a);
+      });
+      const uniq=[]; const used=new Set();
+      for(const c of ranked){ if(!used.has(c.id)){ uniq.push(c); used.add(c.id);} if(uniq.length>=3) break; }
+      return uniq;
+    }
+    function renderCases(cases){
+      if (!cases || !cases.length){ $('#caseWrap').innerHTML=''; return; }
+      $('#caseWrap').innerHTML = `
+        <div class="p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <div class="text-lg font-semibold mb-2">近い導入事例</div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            ${cases.map(c=>`
+              <a class="block p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 transition"
+                 href="${c.url}" target="_blank" rel="noopener">
+                <img class="case-img" referrerpolicy="no-referrer" loading="lazy"
+                     src="${c.img}" alt="${c.title}"
+                     onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22240%22><rect width=%22400%22 height=%22240%22 fill=%230b1220/><text x=%2220%22 y=%22130%22 fill=%23ffffff>画像を取得できません</text></svg>';">
+                <div class="mt-2 text-sm font-medium">${c.title}</div>
+              </a>
+            `).join('')}
+          </div>
+        </div>`;
     }
 
     // ===== RENDER =====
     function clearResult(){
       $('#proposalSummary').innerHTML = '';
+      $('#globalCtas').innerHTML = '';
       $('#evidenceWrap').innerHTML = '';
+      $('#caseWrap').innerHTML = '';
       $('#recommendWrap').innerHTML = '';
       $('#iwasemiWrap').innerHTML = '';
       $('#notesWrap').innerHTML = '';
-      $('#casesWrap').innerHTML = '';
     }
 
     function cardExplainAbs(s){
-      if (s === null) return 'ブース製品のため数値は参考扱いです。';
+      if (s===null) return 'ブースは製品仕様の影響が大きいため、数値は参考扱いです。';
       if (s >= 70) return '吸音材の導入が強く推奨されます（高残響）。';
       if (s >= 40) return '吸音導入で明瞭度の改善が期待できます。';
       if (s >= 12) return '軽微な吸音でも改善が見込めます。';
       return '現状、吸音の必要性は小さいと推定されます。';
     }
     function cardExplainIsl(s, d){
-      if (s === null) return 'ブースは製品固有の構造影響が大きく、現場確認を推奨します。';
+      if (s===null) return 'ブースの漏れ・遮音は製品固有要素に依存します。現地確認を推奨します。';
       if (s >= 60) return '遮音工事が主目的（欄間・共有天井・隙間等の経路対策）。';
       if (s >= 45) return '隙詰め等の簡易遮音と吸音の併用が有効です。';
       if (s >= 30) return '軽微な回り込み対策を検討してください。';
       return '現状、遮音（漏れ/侵入）の優先度は高くありません。';
     }
-    const asScoreText = v => (v===null || v===undefined) ? '—（ブース製品のため参考）' : String(v);
+
+    // グローバルCTA（常時）
+    const TRIAL_URL = 'https://iwasemi.com/form';
+    const MEET_URL  = 'https://pixiedusttech.eeasy.jp/sakiho.shiraiwa/general?1740439824640';
+    const CONTACT_URL = 'https://iwasemi.com/form';
+    function renderGlobalCTAs(){
+      $('#globalCtas').classList.remove('hidden');
+      $('#globalCtas').innerHTML = `
+        <div class="flex flex-wrap gap-2">
+          <a href="${TRIAL_URL}" target="_blank" rel="noopener" class="px-3 py-2 rounded-xl bg-emerald-600 text-white text-sm">トライアルを申し込む</a>
+          <a href="${MEET_URL}" target="_blank" rel="noopener" class="px-3 py-2 rounded-xl bg-slate-900 text-white text-sm dark:bg-slate-100 dark:text-slate-900">担当者と打ち合わせ</a>
+          <a href="${CONTACT_URL}" target="_blank" rel="noopener" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-sm">お問い合わせ</a>
+        </div>`;
+    }
 
     function renderProposalSummary(d, recs, S, rt, panelSol){
       const top = recs[0];
       let priceLine = `<span class="badge bg-white/60 dark:bg-slate-800/60">別途見積</span>`;
-      if (top.key==='absorption' || top.key==='abs_plus_seal'){
+      if (top && (top.key==='absorption' || top.key==='abs_plus_seal')){
         const std = panelSol.plans.find(p=>p.name==='標準')?.subtotal||0;
         const pro = panelSol.plans.find(p=>p.name==='強め')?.subtotal||0;
         priceLine = `<span class="tabular-nums font-semibold">${yen(std)}〜${yen(pro)}</span> <span class="text-xs text-slate-500">（概算・税抜）</span>`;
       }
       const ctas = [
-        top.key==='absorption' ? {label:'トライアルを申し込む',kind:'trial'} : null,
-        top.key==='abs_plus_seal' ? {label:'隙詰め同時で相談（PxDT）',kind:'pxdt'} : null,
-        top.key==='isolation' ? {label:'遮音工事の社内見積を依頼',kind:'okamura'} : null
+        top?.key==='absorption' ? {label:'トライアルを申し込む',href:TRIAL_URL} : null,
+        top?.key==='abs_plus_seal' ? {label:'隙詰め同時で相談（PxDT）',href:CONTACT_URL} : null,
+        top?.key==='isolation' ? {label:'担当者と打ち合わせ',href:MEET_URL} : null
       ].filter(Boolean);
 
       $('#proposalSummary').innerHTML = `
@@ -922,8 +918,8 @@
           <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
               <div class="text-sm text-emerald-900/80 dark:text-emerald-100/80">今回のご提案（結論）</div>
-              <div class="mt-1 text-xl font-semibold">解決カテゴリ：${top.label} <span class="badge">${top.priority}</span></div>
-              <p class="text-sm mt-1 text-emerald-900/85 dark:text-emerald-100/85">${top.reason}</p>
+              <div class="mt-1 text-xl font-semibold">解決カテゴリ：${top?top.label:'計測/トライアル'} ${top?`<span class="badge">${top.priority}</span>`:''}</div>
+              <p class="text-sm mt-1 text-emerald-900/85 dark:text-emerald-100/85">${top?top.reason:'境界条件のため、残響測定または体感トライアルで効果を事前検証します。'}</p>
             </div>
             <div class="text-right">
               <div class="text-xs text-slate-500">概算見積</div>
@@ -931,13 +927,9 @@
             </div>
           </div>
           <div class="mt-3 flex flex-wrap gap-2">
-            ${ctas.map(c=>`<button class="px-3 py-2 rounded-xl bg-slate-900 text-white text-sm dark:bg-slate-100 dark:text-slate-900" onclick="handleCTA('${c.kind}')">${c.label}</button>`).join('')}
+            ${ctas.map(c=>`<a href="${c.href}" target="_blank" rel="noopener" class="px-3 py-2 rounded-xl bg-slate-900 text-white text-sm dark:bg-slate-100 dark:text-slate-900">${c.label}</a>`).join('')}
           </div>
         </div>`;
-
-      // 欄間/共有天井/ガラリ → 全画面TIPS（1回だけ）
-      const needTips = d.features.some(x => ['transom','shared_plenum','grille'].includes(x));
-      if (needTips && !window.__tipShown){ window.__tipShown = true; showTips(); }
     }
 
     function evidenceLines(d, S, rt){
@@ -952,71 +944,49 @@
       if (d.sources.includes('invasion_ext')) feats.push('外部からの音の侵入');
       return {
         line1: `残響：平均 ${fmt2(Tavg)}s / 目標 ${fmt2(Ttgt)}s（比 ${fmt2(ratio)}）`,
-        line2: `吸音必要度 ${asScoreText(S.S_abs)} / 遮音必要度 ${asScoreText(S.S_isl)}（スケール：0〜100）`,
+        line2: `吸音必要度 ${S.S_abs===null?'—':S.S_abs} / 遮音必要度 ${S.S_isl===null?'—':S.S_isl}（スケール：0〜100）`,
         line3: `回り込みの要因：${feats.length?feats.join('・'):'特になし'}`,
         explainRT: ratio>=1.3 ? '目標より残響が長いため、吸音導入で明瞭度の改善が見込めます。' :
                   ratio<=0.9 ? '残響は良好な範囲です。吸音は補助的で十分な可能性があります。' :
                                '残響はほぼ目標範囲です。用途により軽微な吸音で調整可能です。',
-        explainLeak: (S.S_isl!=null && S.S_isl>=45) ? '欄間・共有天井や隙間等の回り込みが疑われます。隙詰め/遮音対策を検討ください。' :
-                      (S.S_isl!=null && S.S_isl>=30) ? '軽微な回り込みの可能性があります。箇所特定の上、簡易対策で改善余地。' :
+        explainLeak: (S.S_isl>=45) ? '欄間・共有天井や隙間等の回り込みが疑われます。隙詰め/遮音対策を検討ください。' :
+                      (S.S_isl>=30) ? '軽微な回り込みの可能性があります。箇所特定の上、簡易対策で改善余地。' :
                                       '明確な回り込み要素は小さめです。'
       };
     }
 
     function renderEvidence(d, S, rt){
-      if (rt.T500==null || rt.T1000==null){
-        $('#evidenceWrap').innerHTML = `
-          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
-            <div class="text-sm text-slate-500 mb-1">① サマリ指標（0〜100）</div>
-            <div class="grid grid-cols-1 gap-3">
-              <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-700">
-                <div class="text-sm font-semibold">吸音必要度</div>
-                <div class="text-2xl font-bold">—（ブース製品のため参考）</div>
-                <div class="text-xs text-slate-500 mt-1">ブースは残響よりも面材・構造の影響が大きいため、数値は参考扱いです。</div>
-              </div>
-              <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-700">
-                <div class="text-sm font-semibold">遮音必要度</div>
-                <div class="text-2xl font-bold">—（ブース製品のため参考）</div>
-                <div class="text-xs text-slate-500 mt-1">気密・開口部の扱いで体感が大きく変わります。隙間やダクト等の簡易対策を併用ください。</div>
-              </div>
-            </div>
-            <div class="text-xs text-slate-500 mt-2">${d.company || '（未入力）'}・${d.person || ''}／${d.rooms}室・${d.area}m²/室</div>
-          </div>
-          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
-            <div class="text-sm text-slate-500 mb-1">② 残響・目標</div>
-            <div class="text-sm">残響：— / 目標 —（ブースは製品仕様依存）</div>
-            <div class="text-xs mt-2">※ ブースはメーカー仕様の影響が大きいため、個別に最適化をご提案します。</div>
-          </div>
-          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
-            <div class="text-sm text-slate-500 mb-1">③ 侵入・回り込み</div>
-            <div class="text-sm">—</div>
-            <div class="text-xs mt-2">ブースの気密・開口部の扱いで体感が大きく変わります。隙間やダクト等の簡易対策を併用ください。</div>
-          </div>`;
-        return;
-      }
+      const isBooth = d.spaceType==='booth_tel';
+      const L = (rt.T500==null) ? {
+        line1: '残響：平均 — / 目標 —（ブースは製品仕様依存）',
+        line2: `吸音必要度 — / 遮音必要度 —（スケール：0〜100）`,
+        line3: '回り込みの要因：—',
+        explainRT: '※ ブースはメーカー仕様の影響が大きいため、個別最適化をご提案します。',
+        explainLeak: 'ブースの気密・開口部の扱いで体感が大きく変わります。'
+      } : evidenceLines(d,S,rt);
 
-      const L = evidenceLines(d,S,rt);
       $('#evidenceWrap').innerHTML = `
         <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
           <div class="text-sm text-slate-500 mb-1">① サマリ指標（0〜100）</div>
           <div class="grid grid-cols-1 gap-3">
             <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-700">
               <div class="text-sm font-semibold">吸音必要度</div>
-              <div class="text-2xl font-bold">${asScoreText(S.S_abs)}</div>
+              <div class="text-2xl font-bold">${S.S_abs===null?'—':S.S_abs}</div>
               <div class="text-xs text-slate-500 mt-1">${cardExplainAbs(S.S_abs)}</div>
             </div>
             <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-700">
               <div class="text-sm font-semibold">遮音必要度</div>
-              <div class="text-2xl font-bold">${asScoreText(S.S_isl)}</div>
+              <div class="text-2xl font-bold">${S.S_isl===null?'—':S.S_isl}</div>
               <div class="text-xs text-slate-500 mt-1">${cardExplainIsl(S.S_isl,d)}</div>
             </div>
           </div>
           <div class="text-xs text-slate-500 mt-2">${d.company || '（未入力）'}・${d.person || ''}／${d.rooms}室・${d.area}m²/室</div>
+          <div class="text-xs text-slate-500 mt-1">※ 0=良好／100=要対処の目安</div>
         </div>
         <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
           <div class="text-sm text-slate-500 mb-1">② 残響・目標</div>
           <div class="text-sm">${L.line1}</div>
-          <div class="text-xs text-slate-500 mt-2">500Hz=${fmt2(rt.T500)}s（Aeq=${fmt2(rt.Aeq500)}m²） / 1000Hz=${fmt2(rt.T1000)}s（Aeq=${fmt2(rt.Aeq1000)}m²）</div>
+          ${rt.T500==null?'':`<div class="text-xs text-slate-500 mt-2">500Hz=${fmt2(rt.T500)}s（Aeq=${fmt2(rt.Aeq500)}m²） / 1000Hz=${fmt2(rt.T1000)}s（Aeq=${fmt2(rt.Aeq1000)}m²）</div>`}
           <div class="text-xs mt-2">${L.explainRT}</div>
         </div>
         <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
@@ -1042,6 +1012,11 @@
             </div>`;
         }
         const badge = `<span class="badge">${r.priority}</span>`;
+        // CTAリンク（メールではなくURL直）
+        let ctaHref = '#';
+        if (r.cta?.kind==='trial') ctaHref = TRIAL_URL;
+        else if (r.cta?.kind==='pxdt') ctaHref = CONTACT_URL;
+        else if (r.cta?.kind==='okamura') ctaHref = MEET_URL;
         return `
           <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/60">
             <div class="flex items-baseline justify-between mb-1">
@@ -1051,7 +1026,7 @@
             <p class="text-sm text-slate-700 dark:text-slate-200">${r.reason}</p>
             <div class="mt-2"><span class="text-xs text-slate-500">概算見積：</span><span class="text-base font-semibold tabular-nums">${priceHtml}</span></div>
             ${bomHtml}
-            <button class="mt-3 w-full px-3 py-2 rounded-xl bg-emerald-600 text-white text-sm" onclick="handleCTA('${r.cta.kind}')">${r.cta.label}</button>
+            <a class="mt-3 block w-full px-3 py-2 rounded-xl bg-emerald-600 text-white text-center text-sm" href="${ctaHref}" target="_blank" rel="noopener">${r.cta.label}</a>
           </div>`;
       }).join('');
     }
@@ -1099,44 +1074,17 @@
         </div>`;
     }
 
-    // CTA handler（デモ用）
-    function makeMailto(subject, body){
-      return `mailto:?subject=${enc(subject)}&body=${enc(body)}`;
-    }
+    // CTA handler（レガシー：メール起動→URL直リンクへ移行済。保持のみ）
     function handleCTA(kind){
-      const payload = window.__diagResult;
-      const lines = [];
-      if (payload){
-        const {input, scores, rt, recommendations} = payload;
-        const Ttgt = rtTarget(input.spaceType, input.uses);
-        lines.push(`[案件] ${input.company} / ${input.person}`);
-        lines.push(`[空間] ${input.spaceType}, ${input.area}m² x ${input.rooms}室, 天井:${input.ceilHeight}`);
-        if (scores.S_abs==null || scores.S_isl==null){
-          lines.push(`[指標] ブース製品につき参考（目標RT ${fmt2(Ttgt)}s）`);
-        }else{
-          lines.push(`[指標] 吸音必要度 ${scores.S_abs} / 遮音必要度 ${scores.S_isl} / 目標RT ${fmt2(Ttgt)}s`);
-        }
-        lines.push(`[提案] ${recommendations.map(r=>r.label+'('+r.priority+')').join(' > ')}`);
-      }
-      const summary = lines.join('\n');
-
-      if (kind==='trial'){
-        alert('トライアル（前決済）フローへ遷移する想定です。');
-      } else if (kind==='pxdt'){
-        const href = makeMailto('【iwasemi】PxDT相談', summary + '\n\n※JSONは診断画面の「JSONダウンロード」から添付してください。');
-        window.location.href = href;
-      } else if (kind==='okamura'){
-        const href = makeMailto('【iwasemi】社内見積依頼（遮音/マスキング）', summary + '\n\n欄間・共有天井・ガラリ・隙間の有無、扉/ガラスの仕様を確認ください。');
-        window.location.href = href;
-      }
+      const map={trial:TRIAL_URL, pxdt:CONTACT_URL, okamura:MEET_URL};
+      const href=map[kind]||'#';
+      window.open(href,'_blank','noopener');
     }
     window.handleCTA = handleCTA;
 
     // ===== Googleフォーム送信 =====
-    // 公開URL: https://docs.google.com/forms/d/e/1FAIpQLSf8Eo_j14pXA3mTRSt5tN_gQ0Py46cV-8Rd1ZBW7Nt9cltIpQ/viewform
     const GF_FORM_ID = '1FAIpQLSf8Eo_j14pXA3mTRSt5tN_gQ0Py46cV-8Rd1ZBW7Nt9cltIpQ';
     const GF_ENDPOINT = `https://docs.google.com/forms/d/e/${GF_FORM_ID}/formResponse`;
-    // 事前入力リンクから抽出した entryID マップ（35項目）
     const ENTRY_MAP = {
       company:'entry.633735891',
       person:'entry.1897466872',
@@ -1187,8 +1135,7 @@
         floor: d.floor, ceiling: d.ceiling, door: d.door, doorSeal: d.doorSeal, glazing: d.glazing,
         features: d.features.join(','), effects: d.effects.join(','), zeroLeak: d.zeroLeak? 'yes':'no',
         selfScore: d.selfScore,
-        S_abs: S.S_abs==null ? 'NA' : S.S_abs,  // TELECUBEはNA
-        S_isl: S.S_isl==null ? 'NA' : S.S_isl,
+        S_abs: (S.S_abs==null?'NA':S.S_abs), S_isl: (S.S_isl==null?'NA':S.S_isl),
         primaryKey: top.key, topLabel: top.label, topReason: top.reason,
         panels_std: panels.plans.find(p=>p.name==='標準')?.panels || 0,
         panels_pro: panels.plans.find(p=>p.name==='強め')?.panels || 0,
@@ -1222,15 +1169,27 @@
       }
     }
 
+    // ===== 特例：TELECUBE定型レコメンド =====
+    function recommendForBoothTel(d){
+      return [
+        { key:'absorption', label:'吸音（ブース内面）', priority:'高', score:50,
+          reason:'ブースは容積が小さく反射面の比率が高いため、話し声のこもり・高域反射が生じやすいです。ガラス面や正対壁へ薄型パネルを推奨します。',
+          cta:{label:'トライアルを申し込む',kind:'trial'} },
+        { key:'abs_plus_seal', label:'隙詰め（ブースの気密ケア）', priority:'中', score:40,
+          reason:'ドア下・枠まわり・貫通部の簡易封止により外部への漏れ・外部からの侵入を低減します。',
+          cta:{label:'隙詰め同時で相談（PxDT）',kind:'pxdt'} }
+      ];
+    }
+
     // MAIN
     async function diagnose(){
       const d = collect();
 
-      // 容積ガード：会議室レンジ外は案内のみ
-      const HforV = heightFromKey(d.ceilHeight);
-      const V_LIMIT = 250; // m³
-      const Vroom = Math.max(0.1, d.area) * HforV;
-      if (d.spaceType!=='booth_tel' && Vroom > V_LIMIT){
+      // 容積ガード（会議室想定）
+      const V_LIMIT = 250;
+      const H = heightFromKey(d.ceilHeight);
+      const Vv = Math.max(0.1, d.area) * H;
+      if (Vv > V_LIMIT){
         clearResult();
         $('#proposalSummary').innerHTML =
           `<div class="p-4 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-900/20">
@@ -1238,23 +1197,25 @@
              <p class="text-sm mt-1">ホール等の大空間は容積連動の目標残響が必要です。<br>
              測定・設計検討が前提のため PxDT へ直接ご相談ください。</p>
            </div>`;
-        window.__diagResult = { input:d, note:'volume_out_of_scope', V:Vroom };
+        renderGlobalCTAs();
+        window.__diagResult = { input:d, note:'volume_out_of_scope', V:Vv };
         window.location.hash = '#result';
         return;
       }
 
-      // TELECUBEは特例：RT/スコアを作らず、定型提案のみ
+      // TELECUBEは特例：RT/スコアを算出しない
       if (d.spaceType === 'booth_tel'){
         const recs = recommendForBoothTel(d);
-        const dummyRT = { T500:null, T1000:null, Aeq500:null, Aeq1000:null, V:null, A:d.area, H:HforV };
+        const dummyRT = { T500:null, T1000:null, Aeq500:null, Aeq1000:null, V:Vv, A:d.area, H };
         const S = { S_abs: null, S_isl: null };
         const primaryKey = recs[0]?.key || 'absorption';
         const panelSol = buildPanelSolutions(d, primaryKey, dummyRT);
 
         clearResult();
         renderProposalSummary(d, recs, S, dummyRT, panelSol);
+        renderGlobalCTAs();
         renderEvidence(d, S, dummyRT);
-        renderCases(d, S, primaryKey);
+        renderCases(pickCases(d,S,primaryKey));
         renderRecommendations(recs, panelSol, primaryKey);
         if (['absorption','abs_plus_seal'].includes(primaryKey)) renderIwasemiDetail(d, panelSol, primaryKey);
         renderNotes(primaryKey);
@@ -1280,8 +1241,12 @@
 
       clearResult();
       renderProposalSummary(d, recs, S, rt, panelSol);
+      renderGlobalCTAs();
       renderEvidence(d, S, rt);
-      renderCases(d, S, primaryKey);
+      // 欄間/共有天井/ガラリのTIPS（一度だけ）
+      const needsTip = d.features.some(x => ['transom','shared_plenum','grille'].includes(x));
+      if (needsTip && !window.__tipShown){ window.__tipShown = true; showTips(); }
+      renderCases(pickCases(d,S,primaryKey));
       renderRecommendations(recs, panelSol, primaryKey);
       if (['absorption','abs_plus_seal'].includes(primaryKey)) renderIwasemiDetail(d, panelSol, primaryKey);
       renderNotes(primaryKey);
@@ -1292,8 +1257,7 @@
       if (!window.__autoPreview){
         const payload = buildGoogleFormPayload(diag);
         const res = await postToGoogleForm(payload);
-        if (res?.ok) toast('診断に成功しました', true);
-        else toast('診断に失敗しました', false);
+        toast(res?.ok ? '診断に成功しました' : '診断に失敗しました', !!res?.ok);
       }
 
       window.location.hash = '#result';
@@ -1305,7 +1269,6 @@
       await diagnose();
     });
     $('#resetBtn').addEventListener('click', ()=>{ formEl.reset(); updateProgress(); clearResult(); });
-
     $('#downloadJson').addEventListener('click', ()=>{
       const payload = window.__diagResult || { note: '先に「診断する」を押してください。' };
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
@@ -1315,11 +1278,10 @@
     });
     $('#printBtn').addEventListener('click', ()=> window.print());
 
-    // AUTO PREVIEW（デモ用／送信はしない）
+    // AUTO PREVIEW（送信はしない）
     window.addEventListener('DOMContentLoaded', async ()=> {
       try { window.__autoPreview = true; await diagnose(); } catch(e){}
     });
   </script>
 </body>
 </html>
-```
