@@ -770,82 +770,20 @@
 
    // ===== TELECUBE 事例（GDrive画像 4パターン） =====
 // ※ 画像は公開共有設定にし、uc?export=view&id=... で配信
-<script>
-// ===== Google Drive Thumbnail API を使った TELECUBE 事例表示 =====
-
-// 1) 画像ID（Drive の URL から抽出した FILE_ID）
-const DRIVE_IDS = {
-  tc1p_single:   '1Ep_TSHn8RYXW1qHbiuxyAbuf6hdIL0Vk',
-  tc4p_single:   '1SASFmd2OW48eis-z6AsaO6l2vwJghsmV',
-  tc4p_double:   '1xBpMHpHT6IGGvdhxeTmC0dvoHnyNZ64F',
-  tcmulti_single:'1-kcfy7ogmZqSAsiJTKNwQk07a2QmNWsN'
-};
-
-// 2) サムネイルURL／閲覧ページURLのヘルパ
-function gdThumb(id, size='w1600'){ return `https://drive.google.com/thumbnail?id=${id}&sz=${size}`; }
-// ※ view ページ or ダウンロード直リンク、どちらでもOK。ここでは view にしています。
-function gdView(id){ return `https://drive.google.com/file/d/${id}/view?usp=sharing`; }
-// 直DLにしたい場合は： function gdDownload(id){ return `https://drive.google.com/uc?export=download&id=${id}`; }
-
-// 3) TELECUBE 4パターン（Drive サムネイルで配信）
 const TELECUBE_CASES = [
-  {
-    id:'tc-1p-single',
-    title:'Cタイプ／1人用（片面ガラス）',
-    caption:'RC-α21枚',
-    img: gdThumb(DRIVE_IDS.tc1p_single, 'w1600'),
-    url: gdView(DRIVE_IDS.tc1p_single)
-  },
-  {
-    id:'tc-4p-single',
-    title:'Cタイプ／4人用（片面ガラス）',
-    caption:'RC-α42枚',
-    img: gdThumb(DRIVE_IDS.tc4p_single, 'w1600'),
-    url: gdView(DRIVE_IDS.tc4p_single)
-  },
-  {
-    id:'tc-4p-double',
-    title:'Cタイプ／4人用（両面ガラス）',
-    caption:'RC-α86枚',
-    img: gdThumb(DRIVE_IDS.tc4p_double, 'w1600'),
-    url: gdView(DRIVE_IDS.tc4p_double)
-  },
-  {
-    id:'tc-multi-single',
-    title:'Cタイプ／多人用（片面ガラス）',
-    caption:'RC-α67枚',
-    img: gdThumb(DRIVE_IDS.tcmulti_single, 'w1600'),
-    url: gdView(DRIVE_IDS.tcmulti_single)
-  }
+  { id: 'tc1', title:'TELECUBE 事例 1',
+    img:'https://drive.google.com/uc?export=view&id=1Ep_TSHn8RYXW1qHbiuxyAbuf6hdIL0Vk',
+    url:'https://drive.google.com/uc?export=view&id=1Ep_TSHn8RYXW1qHbiuxyAbuf6hdIL0Vk' },
+  { id: 'tc2', title:'TELECUBE 事例 2',
+    img:'https://drive.google.com/uc?export=view&id=1SASFmd2OW48eis-z6AsaO6l2vwJghsmV',
+    url:'https://drive.google.com/uc?export=view&id=1SASFmd2OW48eis-z6AsaO6l2vwJghsmV' },
+  { id: 'tc3', title:'TELECUBE 事例 3',
+    img:'https://drive.google.com/uc?export=view&id=1xBpMHpHT6IGGvdhxeTmC0dvoHnyNZ64F',
+    url:'https://drive.google.com/uc?export=view&id=1xBpMHpHT6IGGvdhxeTmC0dvoHnyNZ64F' },
+  { id: 'tc4', title:'TELECUBE 事例 4',
+    img:'https://drive.google.com/uc?export=view&id=1-kcfy7ogmZqSAsiJTKNwQk07a2QmNWsN',
+    url:'https://drive.google.com/uc?export=view&id=1-kcfy7ogmZqSAsiJTKNwQk07a2QmNWsN' }
 ];
-
-// 4) （任意）renderCases の onerror フォールバックを堅牢化しておくと安心
-// 既に renderCases が定義済みなら、この差し替えは不要です。
-function renderCases(cases, isBoothTel=false){
-  if (!cases || !cases.length){ document.querySelector('#caseWrap').innerHTML=''; return; }
-  const grid = cases.map(c=>{
-    const link = c.url || c.img || '#';
-    const img  = c.img || c.url || '';
-    const caption = c.caption ? `<div class="text-xs text-slate-500 mt-1">${c.caption}</div>` : '';
-    return `
-      <a class="block p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 transition"
-         href="${link}" target="_blank" rel="noopener">
-        <img class="case-img" loading="lazy"
-             src="${img}" alt="${c.title||''}"
-             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22240%22><rect width=%22400%22 height=%22240%22 fill=%230b1220/><text x=%2220%22 y=%22130%22 fill=%23ffffff>画像を取得できません</text></svg>';"/>
-        <div class="mt-2 text-sm font-medium">${c.title||''}</div>
-        ${caption}
-      </a>
-    `;
-  }).join('');
-  document.querySelector('#caseWrap').innerHTML = `
-    <div class="p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
-      <div class="text-lg font-semibold mb-2">${isBoothTel?'TELECUBE 参考事例':'近い導入事例'}</div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">${grid}</div>
-    </div>`;
-}
-</script>
-
 
 
     // ===== 推奨カテゴリ判定 =====
