@@ -897,23 +897,28 @@ const TELECUBE_CASES = [
       return out;
     }
 
-    function renderCases(cases, isBoothTel=false){
-      if (!cases || !cases.length){ $('#caseWrap').innerHTML=''; return; }
-      const grid = cases.map(c=>`
-        <a class="block p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 transition"
-           href="${c.url}" target="_blank" rel="noopener">
-          <img class="case-img" referrerpolicy="no-referrer" loading="lazy"
-               src="${c.img}" alt="${c.title}"
-               onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22240%22><rect width=%22400%22 height=%22240%22 fill=%230b1220/><text x=%2220%22 y=%22130%22 fill=%23ffffff>画像を取得できません</text></svg>';">
-          <div class="mt-2 text-sm font-medium">${c.title}</div>
-        </a>
-      `).join('');
-      $('#caseWrap').innerHTML = `
-        <div class="p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
-          <div class="text-lg font-semibold mb-2">${isBoothTel?'TELECUBE 参考事例':'近い導入事例'}</div>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">${grid}</div>
-        </div>`;
-    }
+   function renderCases(cases, isBoothTel=false){
+  if (!cases || !cases.length){ $('#caseWrap').innerHTML=''; return; }
+  const grid = cases.map(c=>{
+    const link = c.url || c.img || '#';
+    const img  = c.img || c.url || '';
+    return `
+      <a class="block p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 transition"
+         href="${link}" target="_blank" rel="noopener">
+        <img class="case-img" referrerpolicy="no-referrer" loading="lazy"
+             src="${img}" alt="${c.title||''}"
+             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22240%22><rect width=%22400%22 height=%22240%22 fill=%230b1220/><text x=%2220%22 y=%22130%22 fill=%23ffffff>画像を取得できません</text></svg>';">
+        <div class="mt-2 text-sm font-medium">${c.title||''}</div>
+      </a>
+    `;
+  }).join('');
+  $('#caseWrap').innerHTML = `
+    <div class="p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+      <div class="text-lg font-semibold mb-2">${isBoothTel?'TELECUBE 参考事例':'近い導入事例'}</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">${grid}</div>
+    </div>`;
+}
+
 
     // ===== RENDER HELPERS =====
     function clearResult(){
@@ -1323,7 +1328,7 @@ const TELECUBE_CASES = [
         renderProposalSummary(d, recs, S, dummyRT, panelSol);
         renderGlobalCTAs();
         renderEvidence(d, S, dummyRT);
-        renderCases(TELECUBE_CASES, true);
+        renderCases(TELECUBE_CASES.map(x => ({ ...x, url: x.url || x.img })), true);
         renderRecommendations(recs, panelSol, primaryKey);
         renderIwasemiDetail(d, panelSol, primaryKey);
         renderNotes(primaryKey);
