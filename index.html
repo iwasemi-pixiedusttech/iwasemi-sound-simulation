@@ -276,29 +276,48 @@
         </div>
       </section>
 
-      <!-- 4) 期待効果・制約 -->
-      <section class="p-4 md:p-6 rounded-2xl bg-white dark:bg-slate-800 shadow-sm">
-        <h2 class="text-lg font-semibold mb-4">4) 期待する効果・制約</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <span class="text-sm block mb-1">直接効果（複数選択可）</span>
-            <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="clarity_meeting" class="size-4">会議の聞き取り</label>
-            <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="clarity_web" class="size-4">Web会議の聞き取り</label>
-            <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="speaking" class="size-4">話しやすさ</label>
-            <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="focus" class="size-4">集中力向上</label>
-            <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="leakage" class="size-4">音漏れの低減</label>
-          </div>
-          <div>
-            <span class="text-sm block mb-1">業務・体験効果</span>
-            <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="productivity" class="size-4">生産性アップ</label>
-            <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="comfort" class="size-4">快適性・満足度</label>
-          </div>
-          <div>
-            <span class="text-sm block mb-1">戦略的効果</span>
-            <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="brand" class="size-4">ブランド価値</label>
-            <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="innov" class="size-4">先進的オフィスイメージ</label>
-          </div>
-        </div>
+     <!-- 4) 期待効果・制約 -->
+<section class="md:col-span-2 p-4 md:p-6 rounded-2xl bg-white dark:bg-slate-800 shadow-sm">
+  <h2 class="text-lg font-semibold mb-4">4) 期待する効果・制約</h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div>
+      <span class="text-sm block mb-1">直接効果（複数選択可）</span>
+      <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="clarity_meeting" class="size-4">会議の聞き取り</label>
+      <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="clarity_web" class="size-4">Web会議の聞き取り</label>
+      <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="speaking" class="size-4">話しやすさ</label>
+      <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="focus" class="size-4">集中力向上</label>
+      <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="leakage" class="size-4">音漏れの低減</label>
+    </div>
+    <div>
+      <span class="text-sm block mb-1">業務・体験効果</span>
+      <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="productivity" class="size-4">生産性アップ</label>
+      <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="comfort" class="size-4">快適性・満足度</label>
+    </div>
+    <div>
+      <span class="text-sm block mb-1">戦略的効果</span>
+      <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="brand" class="size-4">ブランド価値</label>
+      <label class="flex items-center gap-2"><input type="checkbox" name="effect" value="innov" class="size-4">先進的オフィスイメージ</label>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+    <label class="block"><span class="text-sm">改修許容（施工可否）</span>
+      <select name="work" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent">
+        <option value="night">夜間可</option><option value="weekend">週末のみ</option><option value="inhours">営業時間内のみ</option>
+      </select>
+    </label>
+    <label class="block"><span class="text-sm">完全遮音（音漏れゼロ）希望</span>
+      <select name="zeroLeak" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent">
+        <option value="no">いいえ</option><option value="yes">はい</option>
+      </select>
+    </label>
+    <label class="block"><span class="text-sm">自己評価：現状の音環境（0=悪い〜10=良い）</span>
+      <input name="selfScore" type="number" min="0" max="10" value="5" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent"/>
+    </label>
+  </div>
+</section>
+
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <label class="block"><span class="text-sm">改修許容（施工可否）</span>
