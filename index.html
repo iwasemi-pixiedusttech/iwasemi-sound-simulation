@@ -4,26 +4,52 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>iwasemi｜音問題 診断サービス（フォーム連携＋事例連携）</title>
+
+  <!-- Noto Sans JP -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Noto Sans JP を読み込み -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Noto Sans JP"','"Noto Sans"','ui-sans-serif','system-ui',
+                   '-apple-system','"Hiragino Kaku Gothic ProN"','Meiryo','sans-serif']
+          }
+        }
+      }
+    }
+  </script>
 
   <style>
     :root{ color-scheme: light dark; }
     .badge{display:inline-block;padding:.125rem .5rem;border-radius:.5rem;font-size:.75rem;border:1px solid rgba(16,185,129,.35)}
     .toast{position:fixed;right:1rem;bottom:1rem;background:#0f172a;color:#fff;padding:.75rem 1rem;border-radius:.75rem;opacity:.96;z-index:70}
     .toast.ok{background:#065f46}.toast.ng{background:#7f1d1d}
+
+    /* Tips */
     .tips-overlay{position:fixed;inset:0;z-index:80;display:none;background:rgba(15,23,42,.96);color:#fff}
     .tips-body{max-width:44rem;margin:8vh auto;padding:1.5rem}
     .tips-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:1rem;padding:1.25rem}
     .tips-actions{display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem}
     .tips-btn{background:#10b981;color:#0b1b26;border-radius:.75rem;padding:.5rem .9rem}
     .tips-btn.gray{background:#e2e8f0;color:#0b1b26}
+
+    /* TELECUBE 画像（全体が入る・見切れ防止） */
+    .telecube-img{
+      width:100%; height:280px; object-fit:contain;
+      background:#0b1220; border-radius:.75rem;
+    }
+    @media (min-width:1024px){
+      .telecube-img{ height:320px; }
+    }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-900 selection:bg-emerald-200/60 dark:bg-slate-900 dark:text-slate-50">
+<body class="font-sans bg-slate-50 text-slate-900 selection:bg-emerald-200/60 dark:bg-slate-900 dark:text-slate-50">
   <div class="max-w-6xl mx-auto p-4 md:p-8">
 
     <!-- HEADER -->
@@ -51,23 +77,27 @@
 
       <!-- 1-A) 顧客情報 -->
       <section class="md:col-span-2 p-4 md:p-6 rounded-2xl bg-white dark:bg-slate-800 shadow-sm">
-        <h2 class="text-lg font-semibold mb-4">1-A) 顧客情報</h2>
+        <h2 class="text-lg font-semibold mb-4">1) 顧客情報</h2>
         <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <label class="block md:col-span-2"><span class="text-sm">企業名（顧客）</span>
+          <label class="block md:col-span-2">
+            <span class="text-sm">企業名（顧客）</span>
             <input name="company" required class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="株式会社○○"/>
           </label>
-          <label class="block"><span class="text-sm">業種</span>
+          <label class="block md:col-span-1">
+            <span class="text-sm">業種</span>
             <select name="industry" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent">
               <option>IT</option><option>製造</option><option>金融</option><option>学校</option><option>医療</option>
               <option>官公庁</option><option>BPO/コール</option><option>商業</option><option>物流</option><option>その他</option>
             </select>
           </label>
-          <label class="block"><span class="text-sm">規模</span>
+          <label class="block md:col-span-1">
+            <span class="text-sm">規模</span>
             <select name="size" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent">
               <option>〜100名</option><option>101–500</option><option>501–1000</option><option>1001–5000</option><option>5001〜</option>
             </select>
           </label>
-          <label class="block"><span class="text-sm">都道府県</span>
+          <label class="block md:col-span-1">
+            <span class="text-sm">都道府県</span>
             <select name="pref" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent">
               <option value="">選択してください</option>
               <option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option>
@@ -82,16 +112,19 @@
           </label>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mt-4">
-          <label class="block"><span class="text-sm">実施想定時期</span>
+          <label class="block md:col-span-1">
+            <span class="text-sm">実施想定時期</span>
             <select name="timeline" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent">
               <option>今期</option><option>来期</option><option selected>未定</option>
             </select>
           </label>
-          <label class="block md:col-span-2"><span class="text-sm">メール（結果送付先）</span>
-            <input name="email" type="email" required class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="taro@example.com"/>
-          </label>
-          <label class="block md:col-span-2"><span class="text-sm">ご担当者名（顧客）</span>
+          <label class="block md:col-span-2">
+            <span class="text-sm">ご担当者名（顧客）</span>
             <input name="person" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="山田 太郎"/>
+          </label>
+          <label class="block md:col-span-2">
+            <span class="text-sm">メール（結果送付先）</span>
+            <input name="email" type="email" required class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="taro@example.com"/>
           </label>
         </div>
       </section>
@@ -100,17 +133,21 @@
       <section class="md:col-span-2 p-4 md:p-6 rounded-2xl bg-white dark:bg-slate-800 shadow-sm">
         <h2 class="text-lg font-semibold mb-4">1-B) 代理店担当者情報</h2>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <label class="block"><span class="text-sm">企業名（代理店）</span>
-            <input name="agent_company" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="○○販売株式会社"/>
+          <label class="block">
+            <span class="text-sm">企業名（代理店）</span>
+            <input name="agentCompany" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="○○販売株式会社"/>
           </label>
-          <label class="block"><span class="text-sm">担当者名</span>
-            <input name="agent_person" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="代理店 太郎"/>
+          <label class="block">
+            <span class="text-sm">担当者名</span>
+            <input name="agentPerson" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="代理店 太郎"/>
           </label>
-          <label class="block"><span class="text-sm">支店名</span>
-            <input name="agent_branch" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="○○支店 / ○○営業部"/>
+          <label class="block">
+            <span class="text-sm">支店名</span>
+            <input name="agentBranch" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="○○支店 / ○○営業部"/>
           </label>
-          <label class="block"><span class="text-sm">メールアドレス</span>
-            <input name="agent_email" type="email" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="agency@example.com"/>
+          <label class="block">
+            <span class="text-sm">メールアドレス</span>
+            <input name="agentEmail" type="email" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="agency@example.com"/>
           </label>
         </div>
       </section>
@@ -322,7 +359,7 @@
         </div>
       </section>
 
-      <!-- 4) 期待効果・制約（横幅フルに拡張） -->
+      <!-- 4) 期待効果・制約（横の余白が出ないよう full span） -->
       <section class="md:col-span-2 p-4 md:p-6 rounded-2xl bg-white dark:bg-slate-800 shadow-sm">
         <h2 class="text-lg font-semibold mb-4">4) 期待する効果・制約</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -380,16 +417,25 @@
         </div>
       </div>
 
-      <div id="proposalSummary" class="mt-4"></div>
+      <!-- 0) 提案サマリー（横の余白が出ないよう block / w-full） -->
+      <div id="proposalSummary" class="mt-4 w-full"></div>
+
+      <!-- 1) エビデンス -->
       <div id="evidenceWrap" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4"></div>
 
-      <div id="recommendWrap" class="mt-6 grid gap-4"></div>
+      <!-- 2) 詳細レコメンド -->
+      <div id="recommendWrap" class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4"></div>
 
+      <!-- 3) iwasemi見積（詳細） -->
       <div id="iwasemiWrap" class="mt-6"></div>
 
-      <!-- 近い導入事例 -->
+      <!-- 4) 近い導入事例（※TELECUBE時は非表示） -->
       <div id="caseWrap" class="mt-6"></div>
 
+      <!-- 5) TELECUBE 参考事例（TELECUBE時のみ表示） -->
+      <div id="telecubeWrap" class="mt-6"></div>
+
+      <!-- 備考 -->
       <div id="notesWrap" class="mt-6"></div>
     </section>
 
@@ -448,7 +494,7 @@
     formEl.addEventListener('input', updateProgress); updateProgress();
 
     // Tips overlay
-    function showTips(opts={}){ $('#tipsExtra').textContent = opts.transom ? '欄間オープンの場合でも壁面が硬質だと室内が反響しやすくなります。吸音で響きを抑えると回り込み軽減に寄与する場合があります。' : ''; $('#tipsOverlay').style.display='block'; }
+    function showTips(opts={}){ if(opts.transom){ $('#tipsExtra').innerHTML='欄間オープンの場合でも、壁面が硬質だと室内が反響しやすくなります。<strong>吸音</strong>で響きを抑えると回り込み軽減に寄与する場合があります。'; } else { $('#tipsExtra').textContent=''; } $('#tipsOverlay').style.display='block'; }
     function hideTips(){ $('#tipsOverlay').style.display='none'; }
 
     // Collect
@@ -456,20 +502,19 @@
     function collect(){
       const fd = new FormData(formEl);
       return {
-        // 顧客情報
+        // 顧客
         company: fd.get('company')||'', person: fd.get('person')||'', email: fd.get('email')||'',
         industry: fd.get('industry')||'', size: fd.get('size')||'', pref: fd.get('pref')||'', timeline: fd.get('timeline')||'未定',
         // 代理店
-        agent_company: fd.get('agent_company')||'', agent_person: fd.get('agent_person')||'', agent_branch: fd.get('agent_branch')||'', agent_email: fd.get('agent_email')||'',
+        agentCompany: fd.get('agentCompany')||'', agentPerson: fd.get('agentPerson')||'', agentBranch: fd.get('agentBranch')||'', agentEmail: fd.get('agentEmail')||'',
         // 空間
         project: fd.get('project')||'既存', category: fd.get('category')||'office', spaceType: fd.get('spaceType')||'meeting_closed',
         uses: getAllChecked('use'), sources: getAllChecked('source'), complaint: fd.get('complaint')||'mid', measures: getAllChecked('measure'),
         // 構成
         area: Number(fd.get('area')||0), rooms: Number(fd.get('rooms')||1), ceilHeight: fd.get('ceilHeight')||'2_5_3_0',
         walls: [fd.get('wall1')||'gypsum', fd.get('wall2')||'gypsum', fd.get('wall3')||'gypsum', fd.get('wall4')||'gypsum'],
-        floor: fd.get('floor')||'carpet', ceiling: fd.get('ceiling')||'pb', door: fd.get('door')||'wood_solid',
-        doorSeal: fd.get('doorSeal')||'gasket', glazing: fd.get('glazing')||'single',
-        features: getAllChecked('feature'),
+        floor: fd.get('floor')||'carpet', ceiling: fd.get('ceiling')||'pb', door: fd.get('door')||'wood_solid', doorSeal: fd.get('doorSeal')||'gasket',
+        glazing: fd.get('glazing')||'single', features: getAllChecked('feature'),
         // 効果・制約
         effects: getAllChecked('effect'), work: fd.get('work')||'night', zeroLeak: fd.get('zeroLeak')==='yes', selfScore: Number(fd.get('selfScore')||5)
       };
@@ -558,7 +603,7 @@
       return Math.max(0, Math.round(s));
     }
 
-    /* ========== iwasemi 枚数補間・見積 ========== */
+    /* ========== iwasemi 枚数（表ベース補間） ========== */
     const PANEL_ANCHORS=[
       {a:5,p:50},{a:10,p:100},{a:15,p:150},{a:20,p:190},{a:25,p:230},{a:30,p:270},
       {a:40,p:350},{a:50,p:430},{a:60,p:500},{a:80,p:640},{a:100,p:770}
@@ -572,9 +617,7 @@
     }
     const UNIT_PRICE=5000;
     function buildPanelSolutions(d, primaryKey, rt){
-      const perRoomStd=Math.max(1, interpPanels(d.area));
-      const totalStd=perRoomStd*Math.max(1,Math.round(d.rooms));
-      const totalPro=Math.max(totalStd+1, Math.round(totalStd*1.2));
+      const perRoomStd=Math.max(1, interpPanels(d.area)); const totalStd=perRoomStd*Math.max(1,Math.round(d.rooms)); const totalPro=Math.max(totalStd+1, Math.round(totalStd*1.2));
       function bomFor(panels, withSeal){
         const parts=[]; const pricePanels=panels*UNIT_PRICE; parts.push({name:'iwasemi パネル（代表）', qty:panels, price:pricePanels});
         let extras=0;
@@ -588,7 +631,7 @@
       return { perRoomStd,totalStd,totalPro, plans:[{name:'標準', panels:totalStd, bom:std.bom, subtotal:std.subtotal},{name:'強め', panels:totalPro, bom:pro.bom, subtotal:pro.subtotal}] };
     }
 
-    /* ========== Recommend ========== */
+    /* ========== Recommend（文章） ========== */
     function recommend(d, S, rt){
       const list=[]; const ratio=((rt.T500+rt.T1000)/2)/rtTarget(d.spaceType,d.uses); const {any}=isolationIndicators(d);
       const TEXT={
@@ -599,14 +642,16 @@
         abs_seal:'声が隣に漏れやすく、室内の残響（音の響き）も強いため、すき間をふさぎつつ吸音で音漏れを軽減することが効果的です。',
         isolation:'残響（音の響き）に加え、欄間や天井、ドアまわりから音が伝わりやすいため、仕切り設置や遮音対策を行うことが有効です。'
       };
+
       if (S.S_abs===null && S.S_isl===null){ // TELECUBE
         list.push({key:'absorption',label:'吸音（ブース内面）',priority:'高',score:50,reason:TEXT.booth_abs});
-        list.push({key:'abs_plus_seal',label:'吸音＋気密ケア',priority:'中',score:40,reason:'ブースのすき間や開口部の簡易対策と併用すると体感改善が早期化します。'});
         return list;
       }
+
       if (S.S_abs<12 && S.S_isl<40){
         list.push({key:'measure',label:'計測／トライアル',priority:'高',score:50,reason:TEXT.measure}); return list;
       }
+
       if (S.S_isl>=60 || (d.zeroLeak && any)){
         list.push({key:'isolation',label:'遮音',priority:'高',score:S.S_isl,reason:TEXT.isolation});
       } else if (S.S_isl>=45){
@@ -616,6 +661,7 @@
       } else {
         list.push({key:'measure',label:'計測／トライアル',priority:'高',score:50,reason:TEXT.measure});
       }
+
       const hasAbs=list.some(x=>x.key==='absorption'||x.key==='abs_plus_seal');
       if (!hasAbs && (S.S_abs||0)>=12){
         list.push({key:'absorption',label:'吸音',priority:'中',score:Math.max(30,S.S_abs),reason:TEXT.abs_mid});
@@ -626,12 +672,14 @@
       return list.slice(0,3).sort((a,b)=>b.score-a.score);
     }
 
-    /* ========== Render basics ========== */
-    function clearResult(){ $('#proposalSummary').innerHTML=''; $('#evidenceWrap').innerHTML=''; $('#recommendWrap').innerHTML=''; $('#iwasemiWrap').innerHTML=''; $('#caseWrap').innerHTML=''; $('#notesWrap').innerHTML=''; }
-
+    /* ========== Render ========== */
+    function clearResult(){
+      $('#proposalSummary').innerHTML=''; $('#evidenceWrap').innerHTML='';
+      $('#recommendWrap').innerHTML=''; $('#iwasemiWrap').innerHTML='';
+      $('#caseWrap').innerHTML=''; $('#telecubeWrap').innerHTML=''; $('#notesWrap').innerHTML='';
+    }
     function cardExplainAbs(s){ if(s>=70)return'吸音材の導入が強く推奨されます（高残響）。'; if(s>=40)return'吸音導入で明瞭度の改善が期待できます。'; if(s>=12)return'軽微な吸音でも改善が見込めます。'; return'現状、吸音の必要性は小さいと推定されます。'; }
     function cardExplainIsl(s){ if(s>=60)return'遮音工事が主目的（欄間・共有天井・隙間等の経路対策）。'; if(s>=45)return'隙間封止等の簡易遮音と吸音の併用が有効です。'; if(s>=30)return'軽微な回り込み対策を検討してください。'; return'現状、遮音（漏れ/侵入）の優先度は高くありません。'; }
-
     function evidenceLines(d,S,rt){
       const Ttgt=rtTarget(d.spaceType,d.uses); const Tavg=(rt.T500+rt.T1000)/2; const ratio=Tavg/Ttgt;
       const feats=[]; if(d.features.includes('transom'))feats.push('欄間オープン'); if(d.features.includes('shared_plenum'))feats.push('共有天井裏'); if(d.features.includes('grille'))feats.push('ガラリ/換気開口');
@@ -648,22 +696,25 @@
     function renderProposalSummary(d, recs, S, rt, panelSol){
       const top = recs[0]; const std=panelSol.plans.find(p=>p.name==='標準'); const pro=panelSol.plans.find(p=>p.name==='強め');
       let priceLine = `<span class="badge bg-white/60 dark:bg-slate-800/60">別途見積</span>`;
-      if (['absorption','abs_plus_seal'].includes(top.key)){
+      if (['吸音','吸音＋隙間対策','吸音（ブース内面）'].includes(top.label) || ['absorption','abs_plus_seal'].includes(top.key)){
         priceLine = `<span class="tabular-nums font-semibold">${yen(std.subtotal)}〜${yen(pro.subtotal)}</span> <span class="text-xs text-slate-500">（概算・税抜）</span>`;
       }
+
       const CTA = `
         <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
           <a class="w-full text-center px-3 py-2 rounded-xl bg-emerald-600 text-white text-sm" href="https://iwasemi.com/form" target="_blank" rel="noopener">トライアルを申し込む</a>
           <a class="w-full text-center px-3 py-2 rounded-xl bg-slate-900 text-white text-sm dark:bg-slate-100 dark:text-slate-900" href="https://pixiedusttech.eeasy.jp/sakiho.shiraiwa/general?1740439824640" target="_blank" rel="noopener">担当者と打ち合わせ</a>
           <a class="w-full text-center px-3 py-2 rounded-xl bg-slate-700 text-white text-sm" href="https://share.hsforms.com/1Kk4-c1IGRxezpKRrXRdfpwswr6j" target="_blank" rel="noopener">お問い合わせ</a>
         </div>`;
+
       const contact = `
         <div class="mt-3 text-xs text-slate-600 dark:text-slate-300">
           <div class="font-semibold">iwasemi担当：白岩（しらいわ）</div>
           <div>電話：090-8389-3420　/　メール：<a class="underline" href="mailto:sakiho.shiraiwa@pixiedusttech.com">sakiho.shiraiwa@pixiedusttech.com</a></div>
         </div>`;
+
       $('#proposalSummary').innerHTML = `
-        <div class="p-4 md:p-5 rounded-2xl border border-emerald-300/50 bg-emerald-50/60 dark:bg-emerald-900/20 dark:border-emerald-700">
+        <div class="w-full p-4 md:p-5 rounded-2xl border border-emerald-300/50 bg-emerald-50/60 dark:bg-emerald-900/20 dark:border-emerald-700">
           <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
               <div class="text-sm text-emerald-900/80 dark:text-emerald-100/80">今回のご提案（結論）</div>
@@ -678,6 +729,7 @@
           ${CTA}
           ${contact}
         </div>`;
+
       const needTips = d.features.some(x=>['transom','shared_plenum','grille'].includes(x));
       if (needTips) {
         $('#proposalSummary').insertAdjacentHTML('beforeend', `
@@ -723,15 +775,7 @@
         </div>`;
     }
 
-    // 推奨カードの列数可変
-    function setRecommendCols(n){
-      const wrap = $('#recommendWrap');
-      if (n <= 1) wrap.className = 'mt-6 grid gap-4 grid-cols-1';
-      else if (n === 2) wrap.className = 'mt-6 grid gap-4 grid-cols-1 md:grid-cols-2';
-      else wrap.className = 'mt-6 grid gap-4 grid-cols-1 lg:grid-cols-3';
-    }
     function renderRecommendations(recs, panelSol, primaryKey){
-      setRecommendCols(recs.length);
       $('#recommendWrap').innerHTML = recs.map(r=>{
         let priceHtml = `<span class="badge bg-white/60 dark:bg-slate-800/60">別途見積</span>`;
         if (r.key==='absorption' || r.key==='abs_plus_seal'){
@@ -792,47 +836,7 @@
         </div>`;
     }
 
-    /* ========== TELECUBE 参考事例（追加表示用） ========== */
-    const TELECUBE_FILES = [
-      {id:'1Ep_TSHn8RYXW1qHbiuxyAbuf6hdIL0Vk', title:'Cタイプ／1人用（片面ガラス）', caption:'RC-α21枚'},
-      {id:'1SASFmd2OW48eis-z6AsaO6l2vwJghsmV', title:'Cタイプ／4人用（片面ガラス）', caption:'RC-α42枚'},
-      {id:'1xBpMHpHT6IGGvdhxeTmC0dvoHnyNZ64F', title:'Cタイプ／4人用（両面ガラス）', caption:'RC-α86枚'},
-      {id:'1-kcfy7ogmZqSAsiJTKNwQk07a2QmNWsN', title:'Cタイプ／多人用（片面ガラス）', caption:'RC-α67枚'},
-    ];
-    const driveThumb = (id, w=1200)=> `https://drive.google.com/thumbnail?id=${id}&sz=w${w}`;
-    function renderTelecubeExamplesAppend(){
-  const wrap = $('#caseWrap'); if(!wrap) return;
-  wrap.innerHTML += `
-    <div class="mt-6 p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
-      <div class="text-base font-semibold mb-3">TELECUBE 参考事例</div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        ${TELECUBE_FILES.map(f=>`
-          <div class="rounded-xl overflow-hidden bg-slate-900/5 dark:bg-white/5 border border-slate-200/70 dark:border-slate-700">
-            <!-- 画像は crop せず全体表示 -->
-            <div class="bg-slate-200/40 dark:bg-slate-700/40 flex items-center justify-center"
-                 style="width:100%; height:220px;">
-              <img src="${driveThumb(f.id)}" alt="${f.title}"
-                   style="max-width:100%; max-height:100%; object-fit:contain"
-                   onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#0ea5e9,#10b981)';">
-            </div>
-            <div class="p-3">
-              <div class="text-sm font-semibold">${f.title}</div>
-              <div class="text-[11px] text-slate-500 mt-1">${f.caption}</div>
-            </div>
-          </div>`).join('')}
-      </div>
-    </div>`;
-}
-
-
-    /* =======================================================================
-       ここから「近い導入事例」ロジック（ご指定どおり貼り付け）
-    ======================================================================= */
-
-    /* ===== 導入事例（Excel反映・最小項目） =====
-     * 会社名(company) / 導入場所(place) / 空間タイプ(space) / 課題(problem: 反響|音漏れ)
-     * 期待する効果(effects[]) / 代表面積(area; m², 不明なら null) / 会議室数(rooms; 不明なら null)
-     */
+    /* ===== 導入事例（Excel反映・最小項目） ===== */
     const CASES = [
       {company:'One&Co（シンガポール・Tanjong Pagar）', place:'ブース',   space:'会議室（密閉）',     problem:'音漏れ', effects:['集中力向上','音漏れの低減'], area:3,   rooms:1},
       {company:'ヤンマーホールディングス株式会社',          place:'会議室', space:'会議室（密閉）',     problem:'音漏れ', effects:['集中力向上','音漏れの低減'], area:19,  rooms:1},
@@ -851,8 +855,6 @@
       {company:'トヨタ自動車東日本株式会社',               place:'会議室', space:'会議室（密閉）',     problem:'反響',   effects:['会議の聞き取り','Web会議の聞き取り','話しやすさ'], area:null, rooms:4},
       {company:'Maison Comado 目黒スタジオ',               place:'スタジオ', space:'スタジオ',           problem:'反響',   effects:['話しやすさ'],                                 area:null, rooms:1},
     ];
-
-    /* 画像URL／記事URL：会社名を含むかで緩く一致（名称ゆらぎ吸収） */
     const CASE_IMG = {
       'ノックス': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1588_v-frms_webp_3cbe404c-75d6-4e03-a62a-ccb5d4e1bf2a.jpg',
       '小野測器': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2388x1321_v-frms_webp_c232231e-3823-470b-9090-e72e25eb6e1c.png',
@@ -888,16 +890,10 @@
       'Maison Comado': 'https://iwasemi.com/posts/cWx2W1kL',
       'コインチェック': 'https://iwasemi.com/posts/coincheck-iwasemi',
     };
-    function getCaseImg(name){
-      const k = Object.keys(CASE_IMG).find(key=> name.includes(key));
-      return k ? CASE_IMG[k] : '';
-    }
-    function getCaseUrl(name){
-      const k = Object.keys(CASE_URL).find(key=> name.includes(key));
-      return k ? CASE_URL[k] : '';
-    }
+    function getCaseImg(name){ const k=Object.keys(CASE_IMG).find(key=> name.includes(key)); return k?CASE_IMG[k]:''; }
+    function getCaseUrl(name){ const k=Object.keys(CASE_URL).find(key=> name.includes(key)); return k?CASE_URL[k]:''; }
 
-    /* ===== ユーザー入力→日本語ラベル ===== */
+    // ユーザー入力→日本語ラベル
     function mapUserPlace(d){
       if (d.spaceType?.startsWith('booth')) return 'ブース';
       if (d.spaceType==='studio') return 'スタジオ';
@@ -920,64 +916,33 @@
       return Array.from(probs);
     }
     function mapEffectsJ(d){
-      const m = {
-        clarity_meeting:'会議の聞き取り', clarity_web:'Web会議の聞き取り',
-        speaking:'話しやすさ', focus:'集中力向上', leakage:'音漏れの低減'
-      };
+      const m = { clarity_meeting:'会議の聞き取り', clarity_web:'Web会議の聞き取り', speaking:'話しやすさ', focus:'集中力向上', leakage:'音漏れの低減' };
       return (d.effects||[]).map(x=> m[x]).filter(Boolean);
     }
 
-    /* ===== 事例スコアリング（合計100） ===== */
+    // 事例スコア
     function caseScore(d, S, rt, c){
-      let score = 0;
-      const uSpace = mapUserSpace(d);
-      if (uSpace === c.space) score += 35;
-      else if (uSpace.startsWith('会議室') && c.space.startsWith('会議室')) score += 25;
-
-      const uPlace = mapUserPlace(d);
-      if (uPlace === c.place) score += 15;
-      else if (uPlace.includes('会議室') && c.place.includes('会議室')) score += 10;
-
-      const uProbs = inferProblems(d, S);
-      if (uProbs.includes(c.problem)) score += 30;
-      else if (c.problem==='反響' && (S?.S_abs==null || S.S_abs>=12)) score += 18;
-      else if (c.problem==='音漏れ' && (S?.S_isl==null || S.S_isl>=30)) score += 18;
-
-      const want = new Set(mapEffectsJ(d));
-      const have = new Set(c.effects||[]);
-      const inter = [...have].filter(x=> want.has(x)).length;
-      score += Math.min(15, inter*7.5);
-
-      if (typeof c.area==='number' && d.area){
-        const closeness = Math.max(0, 1 - Math.abs(c.area - d.area)/Math.max(5, d.area));
-        score += 5*closeness;
-      }
-      if (typeof c.rooms==='number' && d.rooms){
-        const closeness = Math.max(0, 1 - Math.abs(c.rooms - d.rooms)/Math.max(1, d.rooms));
-        score += 5*closeness;
-      }
-
-      if (!getCaseUrl(c.company)) score *= 0.95;
+      let score=0;
+      const uSpace=mapUserSpace(d);
+      if (uSpace===c.space) score+=35; else if (uSpace.startsWith('会議室') && c.space.startsWith('会議室')) score+=25;
+      const uPlace=mapUserPlace(d);
+      if (uPlace===c.place) score+=15; else if (uPlace.includes('会議室') && c.place.includes('会議室')) score+=10;
+      const uProbs=inferProblems(d,S);
+      if (uProbs.includes(c.problem)) score+=30;
+      else if (c.problem==='反響' && (S?.S_abs==null || S.S_abs>=12)) score+=18;
+      else if (c.problem==='音漏れ' && (S?.S_isl==null || S.S_isl>=30)) score+=18;
+      const want=new Set(mapEffectsJ(d)), have=new Set(c.effects||[]); const inter=[...have].filter(x=>want.has(x)).length; score+=Math.min(15, inter*7.5);
+      if (typeof c.area==='number' && d.area){ const closeness=Math.max(0,1-Math.abs(c.area-d.area)/Math.max(5,d.area)); score+=5*closeness; }
+      if (typeof c.rooms==='number' && d.rooms){ const closeness=Math.max(0,1-Math.abs(c.rooms-d.rooms)/Math.max(1,d.rooms)); score+=5*closeness; }
+      if (!getCaseUrl(c.company)) score*=0.95;
       return score;
     }
-
-    /* ===== 上位3件を返す ===== */
-    function selectCaseStudies(d, S, rt){
-      return CASES
-        .map(c=> ({...c, img:getCaseImg(c.company), url:getCaseUrl(c.company),
-                   _score: caseScore(d,S,rt,c)}))
-        .sort((a,b)=> b._score - a._score)
-        .slice(0,3);
+    function selectCaseStudies(d,S,rt){
+      return CASES.map(c=>({...c,img:getCaseImg(c.company),url:getCaseUrl(c.company),_score:caseScore(d,S,rt,c)})).sort((a,b)=>b._score-a._score).slice(0,3);
     }
-
-    /* ===== 事例カード描画 ===== */
     function renderCaseStudies(cases){
-      const wrap = document.getElementById('caseWrap');
-      if (!wrap) return;
-      if (!cases || !cases.length){
-        wrap.innerHTML = '';
-        return;
-      }
+      const wrap = $('#caseWrap'); if (!wrap) return;
+      if (!cases || !cases.length){ wrap.innerHTML=''; return; }
       wrap.innerHTML = `
         <div class="p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
           <div class="text-base font-semibold mb-3">近い導入事例</div>
@@ -986,8 +951,7 @@
               <a class="block rounded-xl overflow-hidden bg-slate-900/5 dark:bg-white/5 border border-slate-200/70 dark:border-slate-700 hover:opacity-90"
                  href="${c.url||'#'}" target="_blank" rel="noopener">
                 <div class="aspect-[4/3] bg-slate-200/40 dark:bg-slate-700/40">
-                  <img src="${c.img}" alt="${c.company}" 
-                       style="width:100%;height:100%;object-fit:cover"
+                  <img src="${c.img}" alt="${c.company}" style="width:100%;height:100%;object-fit:cover"
                        onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#0ea5e9,#10b981)';">
                 </div>
                 <div class="p-3">
@@ -997,18 +961,42 @@
                     <span class="px-1.5 py-0.5 rounded bg-slate-200/60 dark:bg-slate-700/60">${c.space}</span>
                     <span class="px-1.5 py-0.5 rounded bg-slate-200/60 dark:bg-slate-700/60">${c.problem}</span>
                   </div>
-                  <div class="text-[11px] text-slate-500 mt-1">
-                    ${c.area? `${c.area}m²`:'—'} / ${c.rooms??'—'}室
-                  </div>
+                  <div class="text-[11px] text-slate-500 mt-1">${c.area?`${c.area}m²`:'—'} / ${c.rooms??'—'}室</div>
                 </div>
               </a>
             `).join('')}
           </div>
         </div>`;
     }
-    /* ======================= 事例ロジック ここまで ======================= */
 
-    /* ========== Googleフォーム送信（ENTRY_MAP 指定どおり） ========== */
+    /* ===== TELECUBE 参考事例（4パターン） ===== */
+    const TELECUBE_PHOTOS = [
+      {title:'Cタイプ／1人用（片面ガラス）', sheets:'RC-α21枚', id:'1Ep_TSHn8RYXW1qHbiuxyAbuf6hdIL0Vk'},
+      {title:'Cタイプ／4人用（片面ガラス）', sheets:'RC-α42枚', id:'1SASFmd2OW48eis-z6AsaO6l2vwJghsmV'},
+      {title:'Cタイプ／4人用（両面ガラス）', sheets:'RC-α86枚', id:'1xBpMHpHT6IGGvdhxeTmC0dvoHnyNZ64F'},
+      {title:'Cタイプ／多人用（片面ガラス）', sheets:'RC-α67枚', id:'1-kcfy7ogmZqSAsiJTKNwQk07a2QmNWsN'}
+    ];
+    function gdriveThumb(id, w=1600){ return `https://drive.google.com/thumbnail?id=${id}&sz=w${w}`; }
+    function renderTelecubeGallery(){
+      const wrap = $('#telecubeWrap'); if(!wrap) return;
+      wrap.innerHTML = `
+        <div class="p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <div class="text-base font-semibold mb-3">TELECUBE 参考事例</div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            ${TELECUBE_PHOTOS.map(p=>`
+              <div class="rounded-xl overflow-hidden bg-slate-900/5 dark:bg-white/5 border border-slate-200/70 dark:border-slate-700">
+                <img class="telecube-img" src="${gdriveThumb(p.id)}" alt="${p.title}">
+                <div class="p-3">
+                  <div class="text-sm font-semibold">${p.title}</div>
+                  <div class="text-xs text-slate-500 mt-1">${p.sheets}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+    }
+
+    /* ========== Googleフォーム送信 ========== */
     const GF_FORM_ID='1FAIpQLSf8Eo_j14pXA3mTRSt5tN_gQ0Py46cV-8Rd1ZBW7Nt9cltIpQ';
     const GF_ENDPOINT=`https://docs.google.com/forms/d/e/${GF_FORM_ID}/formResponse`;
     const ENTRY_MAP = {
@@ -1067,25 +1055,21 @@
     function buildGoogleFormPayload(diag){
       const d=diag.input, S=diag.scores, recs=diag.recommendations, panels=diag.panels, top=recs[0]||{key:'measure',label:'計測／トライアル',reason:'',score:0};
       return {
-        company:d.company, person:d.person, email:d.email, pref:d.pref,
-        project:d.project, category:d.category, spaceType:d.spaceType,
-        uses:d.uses.join(','), sources:d.sources.join(','),
+        company:d.company, person:d.person, email:d.email, pref:d.pref, project:d.project, category:d.category, spaceType:d.spaceType,
+        uses:d.uses.join(','), sources:d.sources.join(','), area:d.area, rooms:d.rooms, ceilHeight:d.ceilHeight,
+        wall1:d.walls[0], wall2:d.walls[1], wall3:d.walls[2], wall4:d.walls[3], floor:d.floor, ceiling:d.ceiling, door:d.door, doorSeal:d.doorSeal, glazing:d.glazing,
+        features:d.features.join(','),
 
-        area:d.area, rooms:d.rooms, ceilHeight:d.ceilHeight,
-        wall1:d.walls[0], wall2:d.walls[1], wall3:d.walls[2], wall4:d.walls[3],
-        floor:d.floor, ceiling:d.ceiling, door:d.door, doorSeal:d.doorSeal, glazing:d.glazing, features:d.features.join(','),
-
-        // 新設4項目
         industry:d.industry, size:d.size, timeline:d.timeline, complaint:d.complaint,
-
         effects:d.effects.join(','), zeroLeak:d.zeroLeak?'yes':'no', selfScore:d.selfScore,
+
         S_abs:S.S_abs??'NA', S_isl:S.S_isl??'NA', primaryKey:top.key, topLabel:top.label, topReason:top.reason,
         panels_std: panels.plans.find(p=>p.name==='標準')?.panels||0, panels_pro: panels.plans.find(p=>p.name==='強め')?.panels||0,
         price_std: panels.plans.find(p=>p.name==='標準')?.subtotal||0, price_pro: panels.plans.find(p=>p.name==='強め')?.subtotal||0,
         raw_json: JSON.stringify(diag),
 
         // 代理店
-        agentCompany:d.agent_company, agentPerson:d.agent_person, agentEmail:d.agent_email
+        agentCompany:d.agentCompany, agentPerson:d.agentPerson, agentEmail:d.agentEmail,
       };
     }
     async function postToGoogleForm(payload){
@@ -1111,19 +1095,16 @@
         $('#proposalSummary').innerHTML=`
           <div class="p-4 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-900/20">
             <div class="font-semibold">このツールの対象外です（大容積）</div>
-            <p class="text-sm mt-1">ホール等の大空間は容積連動の目標残響が必要です。測定・設計検討が前提のため PxDT へ直接ご相談ください。</p>
+            <p class="text-sm mt-1">ホール等の大空間は容積連動の目標残響が必要です。<br>測定・設計検討が前提のため PxDT へ直接ご相談ください。</p>
           </div>`;
         window.__diagResult={input:d, note:'volume_out_of_scope', V};
         window.location.hash='#result';
         return;
       }
 
-      // TELECUBE：スコア・RTは参考扱いでスキップ
+      // TELECUBE：スコア・RTは参考扱いで、近い導入事例は非表示。代わりにTELECUBE参考事例を表示
       if (d.spaceType==='booth_tel'){
-        const recs=[
-          {key:'absorption',label:'吸音（ブース内面）',priority:'高',score:50,reason:'ブース内で残響（音の響き）が強く声がこもりやすいため、ガラスや金属面に小型吸音パネルを分散配置することが効果的です。'},
-          {key:'abs_plus_seal',label:'吸音＋気密ケア',priority:'中',score:40,reason:'ドア下やパッキン部など音漏れしやすい開口の簡易対策を併用ください。'}
-        ];
+        const recs=[{key:'absorption',label:'吸音（ブース内面）',priority:'高',score:50,reason:'ブース内で残響（音の響き）が強く声がこもりやすいため、ガラスや金属面に小型吸音パネルを分散配置することが効果的です。'}];
         const dummyRT={T500:null,T1000:null,Aeq500:null,Aeq1000:null,V:null,A:d.area,H:H};
         const S={S_abs:null,S_isl:null}; const primaryKey=recs[0].key; const panelSol=buildPanelSolutions(d, primaryKey, dummyRT);
 
@@ -1134,20 +1115,12 @@
         renderIwasemiDetail(d, panelSol, primaryKey);
         renderNotes(primaryKey);
 
-        // 事例マッチング（3件）
-        const matchedCases = selectCaseStudies(d, S, dummyRT);
-        renderCaseStudies(matchedCases);
-        // TELECUBE参考事例も追加表示
-        renderTelecubeExamplesAppend();
-        + // 「近い導入事例」は表示しない
-+ const caseWrap = document.getElementById('caseWrap');
-+ if (caseWrap) caseWrap.innerHTML = '';
-+ // TELECUBE 参考事例のみ表示
-+ renderTelecubeExamplesAppend();
+        // TELECUBE参考事例（画像はDriveサムネイルAPI）
+        renderTelecubeGallery();
 
         const diag={input:d,scores:S,rt:dummyRT,recommendations:recs,panels:panelSol};
         window.__diagResult=diag;
-        const payload=buildGoogleFormPayload(diag); const res=await postToGoogleForm(payload); toast(res?.ok?'診断に成功しました':'診断に失敗しました', !!res?.ok);
+        if(!window.__autoPreview){ const payload=buildGoogleFormPayload(diag); const res=await postToGoogleForm(payload); toast(res?.ok?'診断に成功しました':'診断に失敗しました', !!res?.ok); }
         window.location.hash='#result';
         return;
       }
@@ -1163,27 +1136,29 @@
       if (['absorption','abs_plus_seal'].includes(primaryKey)) renderIwasemiDetail(d, panelSol, primaryKey);
       renderNotes(primaryKey);
 
-      // 事例マッチング（3件）
+      // 事例マッチング（通常のみ）
       const matchedCases = selectCaseStudies(d, S, rt);
       renderCaseStudies(matchedCases);
 
       const diag={input:d,scores:S,rt,recommendations:recs,panels:panelSol};
       window.__diagResult=diag;
 
+      // 欄間/共有天井/ガラリのとき全画面TIPS（1回）
       const needsTip=d.features.some(x=>['transom','shared_plenum','grille'].includes(x));
       if (needsTip && !window.__tipShown){ window.__tipShown=true; showTips({transom:d.features.includes('transom')}); }
 
-      const payload=buildGoogleFormPayload(diag); const res=await postToGoogleForm(payload); toast(res?.ok?'診断に成功しました':'診断に失敗しました', !!res?.ok);
+      if(!window.__autoPreview){ const payload=buildGoogleFormPayload(diag); const res=await postToGoogleForm(payload); toast(res?.ok?'診断に成功しました':'診断に失敗しました', !!res?.ok); }
       window.location.hash='#result';
     }
 
     // Events
-    $('#diagnoseBtn').addEventListener('click', async()=>{ await diagnose(); });
+    $('#diagnoseBtn').addEventListener('click', async()=>{ window.__autoPreview=false; await diagnose(); });
     $('#resetBtn').addEventListener('click', ()=>{ formEl.reset(); updateProgress(); clearResult(); });
     $('#downloadJson').addEventListener('click', ()=>{ const payload=window.__diagResult||{note:'先に「診断する」を押してください。'}; const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`iwasemi-diagnosis-${Date.now()}.json`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); });
     $('#printBtn').addEventListener('click', ()=>window.print());
 
-    window.addEventListener('DOMContentLoaded', async()=>{ try{ window.__autoPreview=true; }catch(e){} });
+    // Auto preview（送信しない）
+    window.addEventListener('DOMContentLoaded', async()=>{ try{ window.__autoPreview=true; await diagnose(); }catch(e){} });
   </script>
 </body>
 </html>
