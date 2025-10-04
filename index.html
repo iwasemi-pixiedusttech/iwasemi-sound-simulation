@@ -424,7 +424,7 @@
       <div id="evidenceWrap" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4"></div>
 
       <!-- 2) 詳細レコメンド -->
-      <div id="recommendWrap" class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4"></div>
+      <div id="recommendWrap" class="mt-6"></div>
 
       <!-- 3) iwasemi見積（詳細） -->
       <div id="iwasemiWrap" class="mt-6"></div>
@@ -775,15 +775,17 @@
         </div>`;
     }
 
-    function renderRecommendations(recs, panelSol, primaryKey){
-      $('#recommendWrap').innerHTML = recs.map(r=>{
+ function renderRecommendations(recs, panelSol, primaryKey){
+   const r = recs && recs.length ? recs[0] : null;
+   if(!r){ $('#recommendWrap').innerHTML=''; return; }
+   const html = (() => {
         let priceHtml = `<span class="badge bg-white/60 dark:bg-slate-800/60">別途見積</span>`;
         if (r.key==='absorption' || r.key==='abs_plus_seal'){
           const std=panelSol.plans.find(p=>p.name==='標準'); const pro=panelSol.plans.find(p=>p.name==='強め');
           priceHtml = `${yen(std.subtotal)}〜${yen(pro.subtotal)} <span class="text-xs text-slate-500">（概算・税抜）</span>`;
         }
-        return `
-          <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/60">
+       return `
+      <div class="w-full p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/60">
             <div class="flex items-baseline justify-between mb-1">
               <div class="text-base font-semibold">解決カテゴリ：${r.label} <span class="badge">${r.priority}</span></div>
               <div class="text-xs text-slate-500">スコア：${Math.round(r.score)}</div>
@@ -791,8 +793,9 @@
             <p class="text-sm text-slate-700 dark:text-slate-200">${r.reason}</p>
             <div class="mt-2"><span class="text-xs text-slate-500">概算見積：</span><span class="text-base font-semibold tabular-nums">${priceHtml}</span></div>
           </div>`;
-      }).join('');
-    }
++   })();
++   $('#recommendWrap').innerHTML = html;
++ }
 
     function renderIwasemiDetail(d, panelSol, primaryKey){
       const std=panelSol.plans.find(p=>p.name==='標準'); const pro=panelSol.plans.find(p=>p.name==='強め');
