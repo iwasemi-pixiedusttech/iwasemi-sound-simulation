@@ -10,7 +10,6 @@
     .badge{display:inline-block;padding:.125rem .5rem;border-radius:.5rem;font-size:.75rem;border:1px solid rgba(16,185,129,.35)}
     .toast{position:fixed;right:1rem;bottom:1rem;background:#0f172a;color:#fff;padding:.75rem 1rem;border-radius:.75rem;opacity:.96;z-index:70}
     .toast.ok{background:#065f46}.toast.ng{background:#7f1d1d}
-    /* === Fullscreen Tips Overlay === */
     .tips-overlay{position:fixed;inset:0;z-index:80;display:none;background:rgba(15,23,42,.96);color:#fff}
     .tips-body{max-width:44rem;margin:8vh auto;padding:1.5rem}
     .tips-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:1rem;padding:1.25rem}
@@ -202,7 +201,7 @@
           </label>
         </div>
 
-        <!-- 壁材（4面） 修正：静的4ブロック -->
+        <!-- 壁材（4面） -->
         <div class="mt-4">
           <span class="text-sm block mb-2">壁材（4面）</span>
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -376,22 +375,16 @@
         </div>
       </div>
 
-      <!-- 0) 提案サマリー -->
       <div id="proposalSummary" class="mt-4"></div>
-
-      <!-- 1) エビデンス -->
       <div id="evidenceWrap" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4"></div>
 
-      <!-- 2) 詳細レコメンド（最大3枚） … 列数はJSで可変 -->
       <div id="recommendWrap" class="mt-6 grid gap-4"></div>
 
-      <!-- 3) iwasemi見積（詳細） -->
       <div id="iwasemiWrap" class="mt-6"></div>
 
-      <!-- 4) 近い導入事例（TELECUBE特例含む） -->
+      <!-- 近い導入事例 -->
       <div id="caseWrap" class="mt-6"></div>
 
-      <!-- 備考 -->
       <div id="notesWrap" class="mt-6"></div>
     </section>
 
@@ -560,7 +553,7 @@
       return Math.max(0, Math.round(s));
     }
 
-    /* ========== iwasemi 枚数（表ベース補間） ========== */
+    /* ========== iwasemi 枚数補間・見積 ========== */
     const PANEL_ANCHORS=[
       {a:5,p:50},{a:10,p:100},{a:15,p:150},{a:20,p:190},{a:25,p:230},{a:30,p:270},
       {a:40,p:350},{a:50,p:430},{a:60,p:500},{a:80,p:640},{a:100,p:770}
@@ -590,7 +583,7 @@
       return { perRoomStd,totalStd,totalPro, plans:[{name:'標準', panels:totalStd, bom:std.bom, subtotal:std.subtotal},{name:'強め', panels:totalPro, bom:pro.bom, subtotal:pro.subtotal}] };
     }
 
-    /* ========== Recommend（文章は修正案に準拠） ========== */
+    /* ========== Recommend ========== */
     function recommend(d, S, rt){
       const list=[]; const ratio=((rt.T500+rt.T1000)/2)/rtTarget(d.spaceType,d.uses); const {any}=isolationIndicators(d);
       const TEXT={
@@ -628,7 +621,7 @@
       return list.slice(0,3).sort((a,b)=>b.score-a.score);
     }
 
-    /* ========== Render ========== */
+    /* ========== Render basics ========== */
     function clearResult(){ $('#proposalSummary').innerHTML=''; $('#evidenceWrap').innerHTML=''; $('#recommendWrap').innerHTML=''; $('#iwasemiWrap').innerHTML=''; $('#caseWrap').innerHTML=''; $('#notesWrap').innerHTML=''; }
 
     function cardExplainAbs(s){ if(s>=70)return'吸音材の導入が強く推奨されます（高残響）。'; if(s>=40)return'吸音導入で明瞭度の改善が期待できます。'; if(s>=12)return'軽微な吸音でも改善が見込めます。'; return'現状、吸音の必要性は小さいと推定されます。'; }
@@ -680,7 +673,6 @@
           ${CTA}
           ${contact}
         </div>`;
-      // サマリー下の注意枠
       const needTips = d.features.some(x=>['transom','shared_plenum','grille'].includes(x));
       if (needTips) {
         $('#proposalSummary').insertAdjacentHTML('beforeend', `
@@ -726,7 +718,7 @@
         </div>`;
     }
 
-    // 推奨カード：列数を件数で可変にして横の空白をなくす
+    // 推奨カードの列数可変
     function setRecommendCols(n){
       const wrap = $('#recommendWrap');
       if (n <= 1) wrap.className = 'mt-6 grid gap-4 grid-cols-1';
@@ -795,7 +787,7 @@
         </div>`;
     }
 
-    /* ========== 導入事例：通常 + TELECUBE特例 ========== */
+    /* ========== TELECUBE 参考事例（追加表示用） ========== */
     const TELECUBE_FILES = [
       {id:'1Ep_TSHn8RYXW1qHbiuxyAbuf6hdIL0Vk', title:'Cタイプ／1人用（片面ガラス）', caption:'RC-α21枚'},
       {id:'1SASFmd2OW48eis-z6AsaO6l2vwJghsmV', title:'Cタイプ／4人用（片面ガラス）', caption:'RC-α42枚'},
@@ -803,9 +795,10 @@
       {id:'1-kcfy7ogmZqSAsiJTKNwQk07a2QmNWsN', title:'Cタイプ／多人用（片面ガラス）', caption:'RC-α67枚'},
     ];
     const driveThumb = (id, w=1200)=> `https://drive.google.com/thumbnail?id=${id}&sz=w${w}`;
-    function renderTelecubeExamples(){
-      $('#caseWrap').innerHTML = `
-        <div class="p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+    function renderTelecubeExamplesAppend(){
+      const wrap = $('#caseWrap'); if(!wrap) return;
+      wrap.insertAdjacentHTML('beforeend', `
+        <div class="mt-6 p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
           <div class="text-base font-semibold mb-3">TELECUBE 参考事例</div>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             ${TELECUBE_FILES.map(f=>`
@@ -820,33 +813,191 @@
                 </div>
               </div>`).join('')}
           </div>
-        </div>`;
+        </div>`);
     }
 
-    // （通常の事例マッチは省略版：ここに既存の CASES / scoring 実装が入ります）
+    /* =======================================================================
+       ここから「近い導入事例」ロジック（ご指定どおり貼り付け）
+    ======================================================================= */
+
+    /* ===== 導入事例（Excel反映・最小項目） =====
+     * 会社名(company) / 導入場所(place) / 空間タイプ(space) / 課題(problem: 反響|音漏れ)
+     * 期待する効果(effects[]) / 代表面積(area; m², 不明なら null) / 会議室数(rooms; 不明なら null)
+     */
     const CASES = [
-      {company:'ノックス株式会社 デモルーム', place:'会議室', space:'会議室（密閉）', problem:'反響', effects:['会議の聞き取り','Web会議の聞き取り','話しやすさ'], area:18, rooms:1, img:'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1588_v-frms_webp_3cbe404c-75d6-4e03-a62a-ccb5d4e1bf2a.jpg', url:'https://iwasemi.com/posts/acoustic-solution-knox-demo-room'},
-      // …（実プロジェクトは前回の配列をそのまま入れてOK）
+      {company:'One&Co（シンガポール・Tanjong Pagar）', place:'ブース',   space:'会議室（密閉）',     problem:'音漏れ', effects:['集中力向上','音漏れの低減'], area:3,   rooms:1},
+      {company:'ヤンマーホールディングス株式会社',          place:'会議室', space:'会議室（密閉）',     problem:'音漏れ', effects:['集中力向上','音漏れの低減'], area:19,  rooms:1},
+      {company:'文部科学省',                               place:'会議室', space:'会議室（密閉）',     problem:'反響',   effects:['会議の聞き取り','Web会議の聞き取り','話しやすさ'], area:9,   rooms:1},
+      {company:'ノックス株式会社',                         place:'会議室', space:'会議室（密閉）',     problem:'反響',   effects:['会議の聞き取り','Web会議の聞き取り','話しやすさ'], area:18,  rooms:1},
+      {company:'東京建物株式会社',                         place:'会議室', space:'会議室（密閉）',     problem:'反響',   effects:['会議の聞き取り','Web会議の聞き取り','話しやすさ'], area:8.4, rooms:1},
+      {company:'トヨタコネクティッド株式会社',             place:'会議室', space:'会議室（密閉）',     problem:'反響',   effects:['会議の聞き取り','Web会議の聞き取り','話しやすさ'], area:9.2, rooms:2},
+      {company:'株式会社アストン',                         place:'会議室', space:'会議室（密閉）',     problem:'反響',   effects:['会議の聞き取り','Web会議の聞き取り','話しやすさ'], area:16,  rooms:1},
+      {company:'株式会社マルニコーポレーション',           place:'会議室', space:'会議室（密閉）',     problem:'音漏れ', effects:['集中力向上','音漏れの低減'],         area:12,  rooms:4},
+      {company:'株式会社小野測器',                         place:'役員会議室', space:'会議室（密閉）',   problem:'反響',   effects:['会議の聞き取り','Web会議の聞き取り','話しやすさ'], area:59.5, rooms:2},
+      {company:'パナソニック エンターテインメント＆コミュニケーション株式会社', place:'会議室', space:'会議室（密閉）', problem:'反響', effects:['会議の聞き取り','Web会議の聞き取り','話しやすさ'], area:74.2, rooms:1},
+      {company:'株式会社北國銀行',                         place:'会議室', space:'会議室（密閉）',     problem:'反響',   effects:['会議の聞き取り','Web会議の聞き取り','話しやすさ'], area:22,  rooms:3},
+      {company:'国土交通省',                               place:'会議室', space:'会議室（欄間オープン）', problem:'音漏れ', effects:['集中力向上','音漏れの低減'],         area:18,  rooms:2},
+      {company:'ニッセイ・ウェルス生命保険株式会社',         place:'役員会議室', space:'会議室（密閉）',   problem:'反響',   effects:['会議の聞き取り','Web会議の聞き取り','話しやすさ'], area:40,  rooms:1},
+      {company:'コインチェック株式会社',                   place:'会議室', space:'会議室（密閉）',     problem:'反響',   effects:['会議の聞き取り','Web会議の聞き取り','話しやすさ'], area:null, rooms:13},
+      {company:'トヨタ自動車東日本株式会社',               place:'会議室', space:'会議室（密閉）',     problem:'反響',   effects:['会議の聞き取り','Web会議の聞き取り','話しやすさ'], area:null, rooms:4},
+      {company:'Maison Comado 目黒スタジオ',               place:'スタジオ', space:'スタジオ',           problem:'反響',   effects:['話しやすさ'],                                 area:null, rooms:1},
     ];
-    function renderCaseStudiesNormal(){
-      const list = CASES.slice(0,3);
-      $('#caseWrap').innerHTML = `
+
+    /* 画像URL／記事URL：会社名を含むかで緩く一致（名称ゆらぎ吸収） */
+    const CASE_IMG = {
+      'ノックス': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1588_v-frms_webp_3cbe404c-75d6-4e03-a62a-ccb5d4e1bf2a.jpg',
+      '小野測器': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2388x1321_v-frms_webp_c232231e-3823-470b-9090-e72e25eb6e1c.png',
+      'マルニ':   'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-934x649_v-fs_webp_95193a5e-061a-4636-8c33-235b921e0e61.jpg',
+      'アストン': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1600_v-frms_webp_9ebd7a93-0b96-4f2e-a7af-45ebeb6a0738.jpg',
+      '東京建物': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1601_v-frms_webp_89d08d5f-9ad3-42aa-a86f-d5eda6b37341.jpg',
+      'ヤンマー': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1601_v-frms_webp_27fb2553-22a6-4a7f-be6e-d28fe418a633.jpg',
+      'パナソニック': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1600_v-frms_webp_00ebe96d-5f99-4eb6-b787-25acb33066b0.jpg',
+      'トヨタコネク': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1600_v-frms_webp_e0ce5f6f-f1d2-4ae4-ada9-bae2514f1fab.jpg',
+      '文部科学省': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1601_v-frms_webp_9fdc4207-ca78-475d-890e-5ca0e4d34d08.jpg',
+      'ニッセイ・ウェルス': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1601_v-frms_webp_f34ed0a6-e0aa-468b-80bf-c327b8764cdf.jpg',
+      '国土交通省': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-5464x8192_v-frms_webp_6b248fdc-adb9-4ff7-8bff-0dc90638c33f.jpg',
+      '北國銀行': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1601_v-frms_webp_595a7dc4-088c-4a60-b2f8-2ca3cdaadf83.jpg',
+      'トヨタ自動車東日本': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-6000x3376_v-frms_webp_a5df4af2-716a-4899-baf4-2584b996f190.jpg',
+      'Maison Comado': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-4032x3024_v-frms_webp_78f5fa8f-2eba-49a6-8074-41ffab353fa2.jpg',
+      'コインチェック': 'https://storage.googleapis.com/studio-design-asset-files/projects/JpOLNkebaQ/s-2400x621_v-frms_webp_7d402690-6c30-46e1-96ce-ae19f2480ef5_small.webp',
+      'One&Co': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1601_v-frms_webp_28181113-164c-4154-8987-80659b27301d.jpg',
+    };
+    const CASE_URL = {
+      'ノックス': 'https://iwasemi.com/posts/acoustic-solution-knox-demo-room',
+      '小野測器': 'https://iwasemi.com/posts/onosokki-acousticpanel',
+      'マルニ':   'https://iwasemi.com/posts/maruni-acousticpanel',
+      'アストン': 'https://iwasemi.com/posts/aston-iwasemi',
+      '東京建物': 'https://iwasemi.com/posts/tokyo-building-acoustic-solution',
+      'ヤンマー': 'https://iwasemi.com/posts/yanmar-acousticpanel',
+      'パナソニック': 'https://iwasemi.com/posts/panasonic-iwasemi',
+      'トヨタコネク': 'https://iwasemi.com/posts/toyota-connected-acoustic-solution',
+      '文部科学省': 'https://iwasemi.com/posts/mext-iwasemi-case-study',
+      'ニッセイ・ウェルス': 'https://iwasemi.com/posts/nw-life-iwasemi',
+      '国土交通省': 'https://iwasemi.com/posts/MLIT-iwasemi',
+      '北國銀行': 'https://iwasemi.com/posts/HokkokuBank',
+      'トヨタ自動車東日本': 'https://iwasemi.com/posts/toyota-ej-iwasemi',
+      'Maison Comado': 'https://iwasemi.com/posts/cWx2W1kL',
+      'コインチェック': 'https://iwasemi.com/posts/coincheck-iwasemi',
+    };
+    function getCaseImg(name){
+      const k = Object.keys(CASE_IMG).find(key=> name.includes(key));
+      return k ? CASE_IMG[k] : '';
+    }
+    function getCaseUrl(name){
+      const k = Object.keys(CASE_URL).find(key=> name.includes(key));
+      return k ? CASE_URL[k] : '';
+    }
+
+    /* ===== ユーザー入力→日本語ラベル ===== */
+    function mapUserPlace(d){
+      if (d.spaceType?.startsWith('booth')) return 'ブース';
+      if (d.spaceType==='studio') return 'スタジオ';
+      if (d.uses?.includes('exec')) return '役員会議室';
+      return '会議室';
+    }
+    function mapUserSpace(d){
+      if (d.spaceType==='meeting_closed')   return '会議室（密閉）';
+      if (d.spaceType==='meeting_transom')  return '会議室（欄間オープン）';
+      if (d.spaceType?.startsWith('booth')) return 'ブース';
+      if (d.spaceType==='studio')           return 'スタジオ';
+      return '会議室（密閉）';
+    }
+    function inferProblems(d, S){
+      const probs = new Set();
+      if (S?.S_abs==null || S?.S_abs>=12) probs.add('反響');
+      const islTrig = (S?.S_isl!=null && S.S_isl>=30) || d.sources?.includes('invasion_ext') ||
+                      d.features?.some(x=> ['transom','shared_plenum','grille','gap_door_bottom','gap_frame','gap_penetration','gap_duct'].includes(x));
+      if (islTrig) probs.add('音漏れ');
+      return Array.from(probs);
+    }
+    function mapEffectsJ(d){
+      const m = {
+        clarity_meeting:'会議の聞き取り', clarity_web:'Web会議の聞き取り',
+        speaking:'話しやすさ', focus:'集中力向上', leakage:'音漏れの低減'
+      };
+      return (d.effects||[]).map(x=> m[x]).filter(Boolean);
+    }
+
+    /* ===== 事例スコアリング（合計100） ===== */
+    function caseScore(d, S, rt, c){
+      let score = 0;
+      const uSpace = mapUserSpace(d);
+      if (uSpace === c.space) score += 35;
+      else if (uSpace.startsWith('会議室') && c.space.startsWith('会議室')) score += 25;
+
+      const uPlace = mapUserPlace(d);
+      if (uPlace === c.place) score += 15;
+      else if (uPlace.includes('会議室') && c.place.includes('会議室')) score += 10;
+
+      const uProbs = inferProblems(d, S);
+      if (uProbs.includes(c.problem)) score += 30;
+      else if (c.problem==='反響' && (S?.S_abs==null || S.S_abs>=12)) score += 18;
+      else if (c.problem==='音漏れ' && (S?.S_isl==null || S.S_isl>=30)) score += 18;
+
+      const want = new Set(mapEffectsJ(d));
+      const have = new Set(c.effects||[]);
+      const inter = [...have].filter(x=> want.has(x)).length;
+      score += Math.min(15, inter*7.5);
+
+      if (typeof c.area==='number' && d.area){
+        const closeness = Math.max(0, 1 - Math.abs(c.area - d.area)/Math.max(5, d.area));
+        score += 5*closeness;
+      }
+      if (typeof c.rooms==='number' && d.rooms){
+        const closeness = Math.max(0, 1 - Math.abs(c.rooms - d.rooms)/Math.max(1, d.rooms));
+        score += 5*closeness;
+      }
+
+      if (!getCaseUrl(c.company)) score *= 0.95;
+      return score;
+    }
+
+    /* ===== 上位3件を返す ===== */
+    function selectCaseStudies(d, S, rt){
+      return CASES
+        .map(c=> ({...c, img:getCaseImg(c.company), url:getCaseUrl(c.company),
+                   _score: caseScore(d,S,rt,c)}))
+        .sort((a,b)=> b._score - a._score)
+        .slice(0,3);
+    }
+
+    /* ===== 事例カード描画 ===== */
+    function renderCaseStudies(cases){
+      const wrap = document.getElementById('caseWrap');
+      if (!wrap) return;
+      if (!cases || !cases.length){
+        wrap.innerHTML = '';
+        return;
+      }
+      wrap.innerHTML = `
         <div class="p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
           <div class="text-base font-semibold mb-3">近い導入事例</div>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            ${list.map(c=>`
+            ${cases.map(c=>`
               <a class="block rounded-xl overflow-hidden bg-slate-900/5 dark:bg-white/5 border border-slate-200/70 dark:border-slate-700 hover:opacity-90"
                  href="${c.url||'#'}" target="_blank" rel="noopener">
                 <div class="aspect-[4/3] bg-slate-200/40 dark:bg-slate-700/40">
-                  <img src="${c.img}" alt="${c.company}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#0ea5e9,#10b981)';">
+                  <img src="${c.img}" alt="${c.company}" 
+                       style="width:100%;height:100%;object-fit:cover"
+                       onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#0ea5e9,#10b981)';">
                 </div>
                 <div class="p-3">
                   <div class="text-sm font-semibold truncate">${c.company}</div>
+                  <div class="mt-1 flex flex-wrap gap-1 text-[11px] text-slate-500">
+                    <span class="px-1.5 py-0.5 rounded bg-slate-200/60 dark:bg-slate-700/60">${c.place}</span>
+                    <span class="px-1.5 py-0.5 rounded bg-slate-200/60 dark:bg-slate-700/60">${c.space}</span>
+                    <span class="px-1.5 py-0.5 rounded bg-slate-200/60 dark:bg-slate-700/60">${c.problem}</span>
+                  </div>
+                  <div class="text-[11px] text-slate-500 mt-1">
+                    ${c.area? `${c.area}m²`:'—'} / ${c.rooms??'—'}室
+                  </div>
                 </div>
-              </a>`).join('')}
+              </a>
+            `).join('')}
           </div>
         </div>`;
     }
+    /* ======================= 事例ロジック ここまで ======================= */
 
     /* ========== Googleフォーム送信（ENTRY_MAP 指定どおり） ========== */
     const GF_FORM_ID='1FAIpQLSf8Eo_j14pXA3mTRSt5tN_gQ0Py46cV-8Rd1ZBW7Nt9cltIpQ';
@@ -974,8 +1125,11 @@
         renderIwasemiDetail(d, panelSol, primaryKey);
         renderNotes(primaryKey);
 
-        // TELECUBE 画像
-        renderTelecubeExamples();
+        // 事例マッチング（3件）
+        const matchedCases = selectCaseStudies(d, S, dummyRT);
+        renderCaseStudies(matchedCases);
+        // TELECUBE参考事例も追加表示
+        renderTelecubeExamplesAppend();
 
         const diag={input:d,scores:S,rt:dummyRT,recommendations:recs,panels:panelSol};
         window.__diagResult=diag;
@@ -995,13 +1149,13 @@
       if (['absorption','abs_plus_seal'].includes(primaryKey)) renderIwasemiDetail(d, panelSol, primaryKey);
       renderNotes(primaryKey);
 
-      // 事例（通常）
-      renderCaseStudiesNormal();
+      // 事例マッチング（3件）
+      const matchedCases = selectCaseStudies(d, S, rt);
+      renderCaseStudies(matchedCases);
 
       const diag={input:d,scores:S,rt,recommendations:recs,panels:panelSol};
       window.__diagResult=diag;
 
-      // 欄間/共有天井/ガラリのとき全画面TIPS（1回）
       const needsTip=d.features.some(x=>['transom','shared_plenum','grille'].includes(x));
       if (needsTip && !window.__tipShown){ window.__tipShown=true; showTips({transom:d.features.includes('transom')}); }
 
@@ -1015,7 +1169,6 @@
     $('#downloadJson').addEventListener('click', ()=>{ const payload=window.__diagResult||{note:'先に「診断する」を押してください。'}; const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`iwasemi-diagnosis-${Date.now()}.json`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); });
     $('#printBtn').addEventListener('click', ()=>window.print());
 
-    // Auto preview（送信しない）
     window.addEventListener('DOMContentLoaded', async()=>{ try{ window.__autoPreview=true; }catch(e){} });
   </script>
 </body>
