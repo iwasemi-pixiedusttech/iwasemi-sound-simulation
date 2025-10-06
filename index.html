@@ -636,7 +636,7 @@
       const list=[]; const ratio=((rt.T500+rt.T1000)/2)/rtTarget(d.spaceType,d.uses); const {any}=isolationIndicators(d);
       const TEXT={
         booth_abs:'ブース内で残響（音の響き）が強く声がこもりやすいため、ガラスや金属面に小型吸音パネルを分散配置することが効果的です。',
-        abs_high:'残響（音の響き）が目標値を上回っており、会話の明瞭度や聞き取りやすさの改善には壁や天井への吸音パネル追加が有効です。',
+        abs_high:'残響（音の響き）が目標値を上回っており、会話の明瞭度や聞き取りやすさの改善には壁や天井への吸音パネル設置が有効です。',
         abs_mid:'残響（音の響き）がやや強いため、一部エリアから吸音パネルを段階的に導入して響きを整えることが効果的です。',
         measure:'残響（音の響き）はおおむね良好ですが、導入前に響きの測定や体感トライアルで最適な吸音量を確認することが有効です。',
         abs_seal:'声が隣に漏れやすく、室内の残響（音の響き）も強いため、すき間をふさぎつつ吸音で音漏れを軽減することが効果的です。',
@@ -694,7 +694,7 @@
     }
 
     function renderProposalSummary(d, recs, S, rt, panelSol){
-      const top = recs[0]; const std=panelSol.plans.find(p=>p.name==='標準'); const pro=panelSol.plans.find(p=>p.name==='強め');
+      const top = recs[0]; const std=panelSol.plans.find(p=>p.name==='標準'); const pro=panelSol.plans.find(p=>p.name==='吸音強化');
       let priceLine = `<span class="badge bg-white/60 dark:bg-slate-800/60">別途見積</span>`;
       if (['吸音','吸音＋隙間対策','吸音（ブース内面）'].includes(top.label) || ['absorption','abs_plus_seal'].includes(top.key)){
         priceLine = `<span class="tabular-nums font-semibold">${yen(std.subtotal)}〜${yen(pro.subtotal)}</span> <span class="text-xs text-slate-500">（概算・税抜）</span>`;
