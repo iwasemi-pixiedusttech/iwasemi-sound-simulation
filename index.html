@@ -135,19 +135,19 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <label class="block">
             <span class="text-sm">企業名（代理店）</span>
-            <input name="agentCompany" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="○○販売株式会社"/>
+            <input name="agentCompany" required class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="○○販売株式会社"/>
           </label>
           <label class="block">
             <span class="text-sm">担当者名</span>
-            <input name="agentPerson" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="代理店 太郎"/>
+            <input name="agentPerson" required class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="代理店 太郎"/>
           </label>
           <label class="block">
             <span class="text-sm">支店名</span>
-            <input name="agentBranch" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="○○支店 / ○○営業部"/>
+            <input name="agentBranch" required class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="○○支店 / ○○営業部"/>
           </label>
           <label class="block">
             <span class="text-sm">メールアドレス</span>
-            <input name="agentEmail" type="email" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="agency@example.com"/>
+            <input name="agentEmail" type="email" required class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent" placeholder="agency@example.com"/>
           </label>
         </div>
       </section>
@@ -383,6 +383,11 @@
           </div>
         </div>
 
+        <!-- 効果が未選択のときのエラー表示 -->
+        <div id="effectsError" class="text-xs text-red-600 mt-2 hidden">
+          「期待する効果」はどれか1つ以上選択してください。
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <label class="block"><span class="text-sm">改修許容（施工可否）</span>
             <select name="work" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300/70 dark:border-slate-700 bg-transparent">
@@ -488,9 +493,17 @@
     // Toast
     function toast(msg, ok=true){ const t=$('#toast'); t.className='toast '+(ok?'ok':'ng'); t.textContent=msg; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),3200); }
 
-    // Progress
+    // Progress（効果グループも1ユニットとして加点）
     const formEl = $('#diagForm'); const progressBar = $('#progressBar');
-    function updateProgress(){ const req=$$('input[required], select[required]', formEl); const filled=req.filter(i=>i.value && i.value.trim()!==''); const p=req.length?Math.round((filled.length/req.length)*100):100; progressBar.style.width=Math.min(100,Math.max(10,p))+'%'; }
+    function updateProgress(){
+      const req = $$('input[required], select[required]', formEl);
+      const filled = req.filter(i => i.value && i.value.trim() !== '' && i.checkValidity());
+      const effectChecked = $$("input[name='effect']:checked", formEl).length > 0;
+      const total = req.length + 1; // +1 = 効果グループ
+      const done  = filled.length + (effectChecked ? 1 : 0);
+      const p = total ? Math.round((done/total)*100) : 100;
+      progressBar.style.width = Math.min(100, Math.max(10, p)) + '%';
+    }
     formEl.addEventListener('input', updateProgress); updateProgress();
 
     // Tips overlay
@@ -518,6 +531,46 @@
         // 効果・制約
         effects: getAllChecked('effect'), work: fd.get('work')||'night', zeroLeak: fd.get('zeroLeak')==='yes', selfScore: Number(fd.get('selfScore')||5)
       };
+    }
+
+    // ===== バリデーション（必須条件） =====
+    function setInvalid(el, on){
+      if(!el) return;
+      el.classList.toggle('border-red-500', !!on);
+      el.setAttribute('aria-invalid', on ? 'true' : 'false');
+    }
+    function validateRequiredFields(){
+      const missing = [];
+
+      // 1-B) 代理店（全て必須）
+      const agentNames = ['agentCompany','agentPerson','agentBranch','agentEmail'];
+      agentNames.forEach(name => {
+        const el = formEl.elements[name];
+        setInvalid(el, false);
+        if(!el || !el.value || !el.checkValidity()){
+          setInvalid(el, true);
+          missing.push(el);
+        }
+      });
+
+      // 4) 効果：どれか1つ以上
+      const effectChecked = $$("input[name='effect']:checked", formEl).length > 0;
+      const effectsError = $('#effectsError');
+      if(!effectChecked){
+        effectsError?.classList.remove('hidden');
+        missing.push($$("input[name='effect']")[0] || effectsError);
+      }else{
+        effectsError?.classList.add('hidden');
+      }
+
+      if(missing.length){
+        const first = missing[0];
+        try{ first.scrollIntoView({behavior:'smooth', block:'center'}); }catch(_){}
+        try{ first.focus({preventScroll:true}); }catch(_){}
+        toast('必須項目を入力してください（代理店情報と「期待する効果」）', false);
+        return false;
+      }
+      return true;
     }
 
     /* ========== acoustics ========== */
@@ -694,7 +747,10 @@
     }
 
     function renderProposalSummary(d, recs, S, rt, panelSol){
-      const top = recs[0]; const std=panelSol.plans.find(p=>p.name==='標準'); const pro=panelSol.plans.find(p=>p.name==='吸音強化');
+      const top = recs[0];
+      const std=panelSol.plans.find(p=>p.name==='標準');
+      const pro=panelSol.plans.find(p=>p.name==='強め'); // 修正：プラン名
+
       let priceLine = `<span class="badge bg-white/60 dark:bg-slate-800/60">別途見積</span>`;
       if (['吸音','吸音＋隙間対策','吸音（ブース内面）'].includes(top.label) || ['absorption','abs_plus_seal'].includes(top.key)){
         priceLine = `<span class="tabular-nums font-semibold">${yen(std.subtotal)}〜${yen(pro.subtotal)}</span> <span class="text-xs text-slate-500">（概算・税抜）</span>`;
@@ -869,7 +925,7 @@
       '国土交通省': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-5464x8192_v-frms_webp_6b248fdc-adb9-4ff7-8bff-0dc90638c33f.jpg',
       '北國銀行': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1601_v-frms_webp_595a7dc4-088c-4a60-b2f8-2ca3cdaadf83.jpg',
       'トヨタ自動車東日本': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-6000x3376_v-frms_webp_a5df4af2-716a-4899-baf4-2584b996f190.jpg',
-      'Maison Comado': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-4032x3024_v-frms_webp_78f5fa8f-2eba-49a6-8074-41ffab353fa2.jpg',
+      'Maison Comado': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-4032x3024_v-frms_webp_78f5a8f-2eba-49a6-8074-41ffab353fa2.jpg',
       'コインチェック': 'https://storage.googleapis.com/studio-design-asset-files/projects/JpOLNkebaQ/s-2400x621_v-frms_webp_7d402690-6c30-46e1-96ce-ae19f2480ef5_small.webp',
       'One&Co': 'https://storage.googleapis.com/studio-cms-assets/projects/JpOLNkebaQ/s-2400x1601_v-frms_webp_28181113-164c-4154-8987-80659b27301d.jpg',
     };
@@ -1086,6 +1142,11 @@
 
     /* ========== Diagnose main ========== */
     async function diagnose(){
+      // 手動実行時のみ必須チェック（自動プレビューはスキップ）
+      if(!window.__autoPreview){
+        if(!validateRequiredFields()){ clearResult(); return; }
+      }
+
       const d=collect();
 
       // 大容積ガード
@@ -1153,7 +1214,7 @@
 
     // Events
     $('#diagnoseBtn').addEventListener('click', async()=>{ window.__autoPreview=false; await diagnose(); });
-    $('#resetBtn').addEventListener('click', ()=>{ formEl.reset(); updateProgress(); clearResult(); });
+    $('#resetBtn').addEventListener('click', ()=>{ formEl.reset(); updateProgress(); clearResult(); $('#effectsError')?.classList.add('hidden'); $$('input[required],select[required]').forEach(el=>setInvalid(el,false)); });
     $('#downloadJson').addEventListener('click', ()=>{ const payload=window.__diagResult||{note:'先に「診断する」を押してください。'}; const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`iwasemi-diagnosis-${Date.now()}.json`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); });
     $('#printBtn').addEventListener('click', ()=>window.print());
 
